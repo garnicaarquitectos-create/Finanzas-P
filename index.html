@@ -637,7 +637,6 @@ function saveCardPayment(cardId){
   S.movements.unshift({id:uid(),type:'egreso',concept:`Pago ${card?.name||'tarjeta'}`,amount,date,cat:'Pago TC',method:'Tarjeta de crédito'});
   save();closeModal();renderAll();
 }
-  <script>
 function openAddFixed(editId){
   const f=editId?S.fixed.find(x=>x.id===editId):{};
   openModal(editId?'Editar gasto fijo':'Agregar gasto fijo',`
