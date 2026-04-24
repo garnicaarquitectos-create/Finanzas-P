@@ -4,822 +4,860 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Mis Finanzas</title>
+
 <style>
 :root{
-  --bg:#f6f3ee;
+  --bg:#f7f9fc;
   --card:#ffffff;
-  --text:#181513;
-  --muted:#7c746d;
-  --line:#e8dfd4;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --blue:#2563eb;
+  --blue2:#1d4ed8;
+  --green:#15803d;
+  --greenSoft:#eefbf4;
+  --red:#dc2626;
+  --redSoft:#fff1f2;
+  --purple:#7c3aed;
+  --purpleSoft:#f4efff;
+  --orange:#f59e0b;
+  --orangeSoft:#fff7ed;
+  --soft:#f8fafc;
   --black:#111111;
-  --green:#2f6d1f;
-  --red:#b03030;
-  --soft:#f3eadf;
-  --soft2:#f8f3eb;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
   max-width:430px;
   margin:auto;
   padding:18px;
+  padding-bottom:98px;
 }
-h1{font-size:40px;text-align:center;margin-bottom:4px}
-.topsub{text-align:center;color:var(--muted);margin-bottom:4px;font-size:15px}
-.tabs{display:flex;gap:8px;margin:18px 0}
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+.header h1{font-size:24px;font-weight:800}
+.iconBtn{
+  width:42px;height:42px;border-radius:16px;border:none;background:#fff;
+  box-shadow:0 3px 12px rgba(15,23,42,.06);
+  font-size:20px;
+}
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:14px;
+}
 .tab{
-  flex:1;padding:12px;border-radius:16px;background:#ece4d8;
-  text-align:center;font-size:13px;border:none
+  border:none;
+  border-radius:16px;
+  padding:12px 8px;
+  background:#eef2f7;
+  color:#64748b;
+  font-weight:700;
+  font-size:13px;
+  transition:.18s;
 }
-.tab.active{background:#111;color:#fff;font-weight:600}
+.tab.active{
+  background:var(--blue);
+  color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(37,99,235,.25);
+}
 .screen{display:none}
-.screen.active{display:block}
+.screen.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
 .card{
-  background:var(--card);border:1px solid var(--line);
-  border-radius:22px;padding:18px;margin-bottom:12px
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:18px;
+  margin-bottom:12px;
+  box-shadow:0 4px 14px rgba(15,23,42,.045);
+}
+.hero{
+  background:linear-gradient(145deg,#2563eb,#1d4ed8);
+  color:#fff;
+  border:none;
+  position:relative;
+  overflow:hidden;
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  right:-38px;top:-30px;
+  width:180px;height:180px;
+  border-radius:50%;
+  background:rgba(255,255,255,.10);
 }
 .title{
-  font-size:12px;letter-spacing:1px;text-transform:uppercase;
-  color:var(--muted);margin-bottom:8px
+  font-size:12px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:800;
+  margin-bottom:8px;
 }
-.big{font-size:46px;font-weight:700;line-height:1}
-.big.negative{color:var(--red)}
-.big.positive{color:var(--green)}
-.line{font-size:15px;color:var(--muted);margin-top:8px}
-.state{
-  display:inline-block;margin-top:10px;padding:8px 12px;border-radius:14px;
-  background:var(--soft);font-size:14px;font-weight:600
+.hero .title{color:rgba(255,255,255,.88)}
+.big{
+  font-size:44px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-1px;
 }
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mini{
-  background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px
+.hero .big{color:#fff}
+.subline{font-size:15px;color:var(--muted);margin-top:7px;line-height:1.35}
+.hero .subline{color:rgba(255,255,255,.9);font-weight:650}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kpi{
+  min-height:140px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
-.money{font-size:28px;font-weight:700}
-.money.red{color:var(--red)}
-.money.green{color:var(--green)}
+.kpi.red{background:var(--redSoft)}
+.kpi.green{background:var(--greenSoft)}
+.kpi .amount{font-size:30px;font-weight:900;margin-top:8px}
+.redText{color:var(--red)}
+.greenText{color:var(--green)}
+.blueText{color:var(--blue)}
+.purpleText{color:var(--purple)}
 .row{
-  display:flex;justify-content:space-between;gap:12px;
-  padding:10px 0;border-bottom:1px solid #eee;font-size:16px
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:11px 0;
+  border-bottom:1px solid var(--line);
 }
 .row:last-child{border-bottom:none}
-.row .right{font-weight:700;text-align:right}
-.note{font-size:13px;color:var(--muted);margin-top:6px}
-.small{font-size:13px;color:var(--muted)}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.btn{
-  padding:14px 16px;border-radius:18px;text-align:center;font-weight:700;
-  border:none;font-size:15px
+.rowMain{font-weight:750}
+.rowSub{font-size:12px;color:var(--muted);margin-top:2px}
+.amountRight{font-weight:900;text-align:right}
+.pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:5px 10px;
+  background:#f1f5f9;
+  font-size:12px;
+  font-weight:750;
+  color:#475569;
 }
-.btn.green{background:#e5f2da;color:#2f6d1f}
-.btn.black{background:#111;color:#fff}
-.btn.soft{background:var(--soft2);color:var(--text)}
+.inputGroup{margin-top:12px}
+label{
+  display:block;
+  font-size:12px;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:#64748b;
+  font-weight:800;
+  margin-bottom:6px;
+}
 input,select{
-  width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);
-  margin-top:8px;background:#fff;font-size:15px
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:13px 14px;
+  font-size:16px;
+  background:#fff;
+  color:var(--text);
 }
-.stack > * + *{margin-top:10px}
-.kpi{font-size:24px;font-weight:700}
-.section-gap{margin-top:12px}
-.badge{
-  display:inline-block;padding:6px 10px;border-radius:12px;background:var(--soft2);
-  font-size:12px;color:var(--muted);margin-top:8px
+.dateWrap input{color:#111827}
+.btn{
+  border:none;
+  border-radius:16px;
+  padding:14px 16px;
+  font-size:15px;
+  font-weight:850;
+  width:100%;
 }
-.up{color:var(--red);font-weight:700}
-.down{color:var(--green);font-weight:700}
-hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0}
-.list-plain .row{font-size:15px}
-.center{text-align:center}
-.hidden{display:none}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.black{background:#111;color:#fff}
+.btn.soft{background:#f1f5f9;color:#334155}
+.btn.red{background:var(--redSoft);color:var(--red)}
+.btn.green{background:var(--greenSoft);color:var(--green)}
+.btnRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.hidden{display:none!important}
+.sectionTitle{
+  font-size:18px;
+  font-weight:900;
+  margin:18px 0 10px;
+}
+.progress{
+  height:5px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:7px;
+}
+.progress span{display:block;height:100%;border-radius:999px;background:var(--blue);width:0%}
+.bottomNav{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:0;
+  width:min(430px,100%);
+  background:#fff;
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  padding:8px 10px 18px;
+  z-index:20;
+}
+.navItem{
+  border:none;background:transparent;color:#64748b;font-size:12px;font-weight:750;
+  display:flex;flex-direction:column;gap:4px;align-items:center;
+}
+.navItem span{font-size:20px}
+.navItem.active{color:var(--blue)}
+.fab{
+  position:fixed;
+  left:50%;
+  bottom:44px;
+  transform:translateX(-50%);
+  width:58px;height:58px;border-radius:50%;
+  border:none;background:var(--blue);color:#fff;font-size:34px;
+  box-shadow:0 10px 28px rgba(37,99,235,.35);
+  z-index:25;
+}
+.modal{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);
+  display:none;align-items:flex-end;justify-content:center;z-index:50;
+}
+.modal.show{display:flex}
+.sheet{
+  width:min(430px,100%);
+  background:#fff;
+  border-radius:26px 26px 0 0;
+  padding:20px;
+  max-height:86vh;
+  overflow:auto;
+}
+.sheetHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.closeBtn{border:none;background:#f1f5f9;border-radius:12px;width:36px;height:36px;font-size:20px}
+.filterRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.small{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);font-size:15px;padding:8px 0}
+.actions{display:flex;gap:8px;margin-top:8px}
+.actions button{padding:8px 10px;border-radius:10px;border:none;background:#f1f5f9;font-size:12px;font-weight:800}
 </style>
 </head>
-<body>
 
-<h1>Mis finanzas</h1>
-<div class="topsub" id="monthLabel">—</div>
-<div class="topsub" id="incomeState">Sin ingreso</div>
+<body>
+<div class="header">
+  <button class="iconBtn">☰</button>
+  <h1>Inicio</h1>
+  <button class="iconBtn">⚙︎</button>
+</div>
 
 <div class="tabs">
   <button class="tab active" data-tab="inicio">Inicio</button>
   <button class="tab" data-tab="movimientos">Movimientos</button>
-  <button class="tab" data-tab="meses">A meses</button>
   <button class="tab" data-tab="historial">Historial</button>
   <button class="tab" data-tab="config">Config</button>
 </div>
-
 <section id="inicio" class="screen active">
-  <div class="card">
-    <div class="title">Sobrante</div>
-    <div class="big" id="leftoverValue">-$0</div>
-    <div class="line" id="leftoverLine">Ingreso $0 · Gastos $0</div>
-    <div class="state" id="pulseState">Estable</div>
+  <div class="card hero">
+    <div class="title">Saldo actual</div>
+    <div class="big" id="saldoActual">$0</div>
+    <div class="subline" id="proximaQuincena">Próxima quincena: $0</div>
+    <div class="subline" id="sueldoMensual">Sueldo mensual: $0</div>
   </div>
 
-  <div class="grid">
-    <div class="mini">
-      <div class="title">Ingreso</div>
-      <div class="money green" id="incomeTotal">$0</div>
+  <div class="grid2">
+    <div class="card kpi red">
+      <div class="title redText">A pagar</div>
+      <div class="amount redText" id="aPagar">$0</div>
+      <div class="subline">Compromisos del mes</div>
     </div>
-    <div class="mini">
-      <div class="title">Comprometido</div>
-      <div class="money red" id="committedTotal">$0</div>
+    <div class="card kpi green">
+      <div class="title greenText">Saldo disponible</div>
+      <div class="amount greenText" id="saldoDisponible">$0</div>
+      <div class="subline">Dinero libre para usar</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="title">Tarjetas por pagar</div>
-    <div id="cardsDueHome" class="list-plain"></div>
+  <div class="card green">
+    <div class="title greenText">Ahorro</div>
+    <div class="amount greenText" id="ahorroTotal">$0</div>
+    <div class="subline">Abonos acumulados</div>
   </div>
 
   <div class="card">
-    <div class="title">Ahorro</div>
-    <div class="money green" id="savingsTotal">$0</div>
-    <div class="note">Abonos registrados</div>
+    <div class="title">Gastos</div>
+    <div class="amount purpleText" id="gastosMes">-$0</div>
+    <div class="subline">Total acumulado</div>
   </div>
 
   <div class="card">
     <div class="title">Gastos por categoría</div>
-    <div id="categoryHome" class="list-plain"></div>
+    <div id="categoriasHome"></div>
   </div>
 
-  <div class="card">
-    <div class="title">Pagos recurrentes</div>
-    <div id="recurringHome" class="list-plain"></div>
-  </div>
-
-  <div class="card">
-    <div class="title">Tendencias</div>
-    <div id="trendsHome" class="list-plain"></div>
-  </div>
-
-  <div class="card">
-    <div class="title">Últimos movimientos</div>
-    <div id="latestHome" class="list-plain"></div>
-  </div>
-
-  <div class="btns">
-    <button class="btn green" onclick="toggleBox('incomeBox')">+ Ingreso</button>
-    <button class="btn black" onclick="toggleBox('expenseBox')">+ Gasto</button>
-  </div>
-
-  <div class="card hidden" id="incomeBox">
-    <div class="title">Registrar ingreso</div>
-    <div class="stack">
-      <input id="incDesc" placeholder="Concepto">
-      <input id="incAmount" type="number" placeholder="Monto">
-      <select id="incType">
-        <option value="Sueldo fijo">Sueldo fijo</option>
-        <option value="Ingreso adicional">Ingreso adicional</option>
-      </select>
-      <select id="incExtraType" class="hidden">
-        <option value="Aguinaldo">Aguinaldo</option>
-        <option value="Prima vacacional">Prima vacacional</option>
-        <option value="PTU">PTU</option>
-        <option value="Impuestos (SAT)">Impuestos (SAT)</option>
-        <option value="Ventas / Comisiones">Ventas / Comisiones</option>
-      </select>
-      <input id="incDate" type="date">
-      <button class="btn black" onclick="addIncome()">Guardar ingreso</button>
+  <div class="grid2">
+    <div class="card">
+      <div class="title">Tarjetas por pagar</div>
+      <div id="tarjetasHome"></div>
+      <button class="btn soft" style="margin-top:10px" onclick="openAddCard()">+ Agregar tarjeta</button>
     </div>
-  </div>
 
-  <div class="card hidden" id="expenseBox">
-    <div class="title">Registrar gasto</div>
-    <div class="stack">
-      <input id="expDesc" placeholder="Concepto">
-      <input id="expAmount" type="number" placeholder="Monto">
-      <select id="expCat">
-        <option>Antojos</option>
-        <option>Vacaciones</option>
-        <option>Plataformas</option>
-        <option>Ropa</option>
-        <option>Deporte</option>
-        <option>Despensa</option>
-        <option>Uber</option>
-        <option>Comida</option>
-        <option>Transporte</option>
-        <option>Ocio</option>
-        <option>Hogar</option>
-        <option>Salud</option>
-        <option>Otro</option>
-      </select>
-      <select id="expMethod"></select>
-      <input id="expDate" type="date">
-      <button class="btn black" onclick="addExpense()">Guardar gasto</button>
+    <div class="card">
+      <div class="title">Gastos fijos</div>
+      <div id="fijosHome"></div>
+      <button class="btn soft" style="margin-top:10px" onclick="openAddFixed()">+ Agregar gasto fijo</button>
     </div>
   </div>
 </section>
+
 <section id="movimientos" class="screen">
-  <div class="card">
-    <div class="title">Todos los movimientos</div>
-    <div id="allMovements" class="list-plain"></div>
-  </div>
-</section>
-
-<section id="meses" class="screen">
-  <div class="card">
-    <div class="title">Total mensual</div>
-    <div class="big positive" id="monthsMonthlyTotal">$0</div>
-    <div class="state" id="monthsState">Estable</div>
-  </div>
-
-  <div class="card">
-    <div class="title">Agregar compra</div>
-    <div class="stack">
-      <input id="mName" placeholder="Concepto">
-      <input id="mTotal" type="number" placeholder="Total">
-      <input id="mMonths" type="number" placeholder="Meses">
-      <input id="mStart" type="date">
-      <button class="btn black" onclick="addInstallment()">Guardar compra</button>
-    </div>
+  <div class="filterRow">
+    <select id="filterType" onchange="renderAll()">
+      <option value="todos">Todos</option>
+      <option value="ingreso">Ingresos</option>
+      <option value="egreso">Egresos</option>
+      <option value="tc">Tarjeta crédito</option>
+    </select>
+    <select id="filterCat" onchange="renderAll()">
+      <option value="todas">Todas las categorías</option>
+    </select>
   </div>
 
   <div class="card">
-    <div class="title">Compras activas</div>
-    <div id="monthsList" class="list-plain"></div>
+    <div class="title">Movimientos</div>
+    <div id="movList"></div>
   </div>
 </section>
 
 <section id="historial" class="screen">
-  <div class="grid">
-    <div class="mini">
+  <div class="grid2">
+    <div class="card">
       <div class="title">Gasto actual</div>
-      <div class="kpi" id="histCurrent">$0</div>
+      <div class="amount" id="histGasto">$0</div>
     </div>
-    <div class="mini">
-      <div class="title">Variación</div>
-      <div class="kpi" id="histVariation">$0</div>
+    <div class="card">
+      <div class="title">Diferencia</div>
+      <div class="amount" id="histDiff">$0</div>
     </div>
   </div>
 
   <div class="card">
     <div class="title">Top categoría</div>
-    <div class="kpi" id="histTopCat">—</div>
-    <div class="badge" id="histInsight">Estable</div>
+    <div class="amount" id="histTop">—</div>
+    <div class="pill" id="histInsight">Estable</div>
   </div>
 
   <div class="card">
-    <div class="title">Comparativo</div>
-    <div class="row"><div id="histThisMonthLabel">Este mes</div><div class="right" id="histThisMonth">$0</div></div>
-    <div class="row"><div id="histLastMonthLabel">Mes pasado</div><div class="right" id="histLastMonth">$0</div></div>
+    <div class="title">Comparativo mensual</div>
+    <div id="comparativoMensual"></div>
   </div>
 
   <div class="card">
     <div class="title">Acumulado por categoría</div>
-    <div id="histCategories" class="list-plain"></div>
+    <div id="histCategorias"></div>
   </div>
 </section>
 
 <section id="config" class="screen">
   <div class="card">
-    <div class="title">Sueldo fijo</div>
-    <input id="salaryAmount" type="number" placeholder="Monto">
-    <select id="salaryFreq">
-      <option value="quincenal">Quincenal</option>
-      <option value="mensual">Mensual</option>
-    </select>
-    <button class="btn black" onclick="saveSalary()">Guardar sueldo</button>
+    <div class="title">Sueldo fijo quincenal</div>
+    <div class="inputGroup">
+      <label>Monto por quincena</label>
+      <input id="salaryAmount" inputmode="decimal" placeholder="18,052" oninput="moneyInput(this)">
+    </div>
+    <button class="btn black" style="margin-top:12px" onclick="saveSalary()">Guardar sueldo</button>
+    <div id="salarySaved" class="subline"></div>
   </div>
 
   <div class="card">
     <div class="title">Ingresos adicionales</div>
-    <div class="note">Aguinaldo · Prima vacacional · PTU · Impuestos (SAT) · Ventas / Comisiones</div>
-    <button class="btn soft" onclick="goTab('inicio');toggleBox('incomeBox')">+ Agregar ingreso adicional</button>
-  </div>
-
-  <div class="card">
-    <div class="title">Gastos fijos recurrentes</div>
-    <div class="note">Cada mes confirma el importe real</div>
-    <div class="stack section-gap">
-      <input id="rName" placeholder="Concepto">
-      <select id="rCat">
-        <option>Hogar</option>
-        <option>Plataformas</option>
-        <option>Salud</option>
-        <option>Transporte</option>
-        <option>Despensa</option>
-        <option>Uber</option>
+    <div class="inputGroup">
+      <label>Fecha</label>
+      <input id="extraDate" type="date">
+    </div>
+    <div class="inputGroup">
+      <label>Tipo</label>
+      <select id="extraType" onchange="toggleOther('extraType','extraOther')">
+        <option>Aguinaldo</option>
+        <option>Prima vacacional</option>
+        <option>PTU</option>
+        <option>Impuestos (SAT)</option>
+        <option>Ventas / Comisiones</option>
         <option>Otro</option>
       </select>
-      <input id="rDay" type="number" min="1" max="31" placeholder="Día de pago">
-      <button class="btn black" onclick="addRecurringTemplate()">Guardar fijo</button>
     </div>
-    <hr class="sep">
-    <div id="recurringTemplates" class="list-plain"></div>
+    <div class="inputGroup hidden" id="extraOther">
+      <label>¿Cuál ingreso?</label>
+      <input id="extraOtherText" placeholder="Ej. Reembolso">
+    </div>
+    <div class="inputGroup">
+      <label>Importe</label>
+      <input id="extraAmount" inputmode="decimal" placeholder="3,000" oninput="moneyInput(this)">
+    </div>
+    <button class="btn black" style="margin-top:12px" onclick="addExtraIncome()">Guardar ingreso</button>
   </div>
 
   <div class="card">
     <div class="title">Tarjetas de crédito</div>
-    <div class="stack">
-      <input id="cName" placeholder="Nombre tarjeta">
-      <input id="cLimit" type="number" placeholder="Línea total">
-      <input id="cCut" type="number" min="1" max="31" placeholder="Fecha corte">
-      <input id="cPay" type="number" min="1" max="31" placeholder="Fecha pago">
-      <button class="btn black" onclick="addCard()">Guardar tarjeta</button>
-    </div>
-    <hr class="sep">
-    <div id="cardsConfigList" class="list-plain"></div>
+    <div id="cardsConfig"></div>
+    <button class="btn soft" style="margin-top:10px" onclick="openAddCard()">+ Agregar tarjeta</button>
   </div>
 
   <div class="card">
-    <div class="title">Registrar pago de tarjeta</div>
-    <div class="stack">
-      <select id="cardPaymentCard"></select>
-      <input id="cardPaymentAmount" type="number" placeholder="Pago realizado">
-      <input id="cardAvailableNow" type="number" placeholder="Línea disponible actual">
-      <input id="cardPaymentDate" type="date">
-      <button class="btn black" onclick="addCardPayment()">Guardar pago</button>
-    </div>
+    <div class="title">Gastos fijos</div>
+    <div id="fixedConfig"></div>
+    <button class="btn soft" style="margin-top:10px" onclick="openAddFixed()">+ Agregar gasto fijo</button>
   </div>
 
   <div class="card">
-    <div class="title">Préstamos / deudas</div>
-    <div class="stack">
-      <input id="lName" placeholder="Nombre préstamo">
-      <input id="lBalance" type="number" placeholder="Saldo pendiente inicial">
-      <button class="btn black" onclick="addLoan()">Guardar préstamo</button>
-    </div>
-    <hr class="sep">
-    <div id="loansList" class="list-plain"></div>
-  </div>
-
-  <div class="card">
-    <div class="title">Actualizar préstamo</div>
-    <div class="stack">
-      <select id="loanSelect"></select>
-      <input id="loanCapitalPayment" type="number" placeholder="Abono a capital">
-      <input id="loanNewBalance" type="number" placeholder="Saldo pendiente">
-      <input id="loanDate" type="date">
-      <button class="btn black" onclick="updateLoan()">Guardar movimiento</button>
-    </div>
+    <div class="title">Préstamos</div>
+    <div id="loansConfig"></div>
+    <button class="btn soft" style="margin-top:10px" onclick="openAddLoan()">+ Agregar préstamo</button>
   </div>
 
   <div class="card">
     <div class="title">Ahorro</div>
-    <div class="stack">
-      <input id="sName" placeholder="Nombre ahorro o meta">
-      <input id="sAmount" type="number" placeholder="Abono">
-      <input id="sDate" type="date">
-      <button class="btn black" onclick="addSaving()">Registrar abono</button>
-    </div>
-    <hr class="sep">
-    <div id="savingsList" class="list-plain"></div>
+    <div id="savingConfig"></div>
+    <button class="btn soft" style="margin-top:10px" onclick="openAddSaving()">+ Registrar abono</button>
   </div>
 
   <div class="card">
     <div class="title">Eliminar datos registrados</div>
-    <button class="btn soft" onclick="resetAll()">Eliminar datos registrados</button>
+    <button class="btn red" onclick="resetData()">Eliminar datos registrados</button>
   </div>
 </section>
+
+<button class="fab" onclick="openAddMovement()">+</button>
+
+<div class="bottomNav">
+  <button class="navItem active" data-tab="inicio"><span>⌂</span>Inicio</button>
+  <button class="navItem" data-tab="movimientos"><span>☷</span>Movimientos</button>
+  <button class="navItem" data-tab="historial"><span>▣</span>Historial</button>
+  <button class="navItem" data-tab="config"><span>•••</span>Más</button>
+</div>
+<div class="modal" id="modal">
+  <div class="sheet">
+    <div class="sheetHead">
+      <h2 id="modalTitle">Agregar</h2>
+      <button class="closeBtn" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
 <script>
-const KEY='mis-finanzas-v2-real';
-const now=new Date();
-const y=now.getFullYear();
-const m=now.getMonth();
+const KEY='finanzas-v4-premium';
+const cats=['Antojos','Vacaciones','Plataformas','Ropa','Deporte','Despensa','Uber','Comida','Transporte','Ocio','Hogar','Salud','Otro'];
 const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-document.getElementById('monthLabel').textContent=`${monthNames[m]} ${y}`;
+const today=new Date();
+const currentKey=mk(today);
+const lastKey=mk(new Date(today.getFullYear(),today.getMonth()-1,1));
 
-const initialState={
-  salary:{amount:0,freq:'quincenal'},
-  incomes:[],
-  expenses:[],
-  recurringTemplates:[],
-  recurringMonthly:{},
-  cards:[],
-  cardPayments:[],
-  loans:[],
-  loanLogs:[],
-  savings:[],
-  installments:[]
-};
-let S=loadState();
+let S=load();
 
-function loadState(){
-  try{return {...initialState,...JSON.parse(localStorage.getItem(KEY)||'{}')};}
-  catch(e){return JSON.parse(JSON.stringify(initialState));}
+function blank(){
+  return {
+    salary:0,
+    extraIncomes:[],
+    movements:[],
+    cards:[],
+    cardPayments:[],
+    fixed:[],
+    fixedMonthly:{},
+    loans:[],
+    loanLogs:[],
+    savings:[]
+  }
 }
-function saveState(){localStorage.setItem(KEY,JSON.stringify(S));}
-function monthKey(dateStr){
-  const d=new Date(dateStr||new Date());
+function load(){
+  try{return {...blank(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}
+  catch(e){return blank()}
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function mk(d){
+  d=new Date(d);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
-const currentKey=monthKey(new Date());
-const lastKey=monthKey(new Date(y,m-1,1));
-function formatMoney(n){
+function fm(n){
   n=Number(n||0);
-  const sign=n<0?'-':'';
-  return `${sign}$${Math.abs(n).toLocaleString('es-MX')}`;
+  let sign=n<0?'-':'';
+  return `${sign}$${Math.abs(n).toLocaleString('es-MX',{maximumFractionDigits:2})}`;
 }
-function endOfMonth(y,m){return new Date(y,m+1,0).getDate();}
-function toggleBox(id){document.getElementById(id).classList.toggle('hidden');}
-function goTab(name){
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
-  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===name));
+function parseMoney(v){return Number(String(v||'').replace(/,/g,'').replace(/[^\d.]/g,''))||0}
+function moneyInput(el){
+  let v=String(el.value).replace(/,/g,'').replace(/[^\d.]/g,'');
+  if(v===''){el.value='';return}
+  let parts=v.split('.');
+  let int=parts[0];
+  let dec=parts[1]?'.'+parts[1].slice(0,2):'';
+  el.value=Number(int).toLocaleString('es-MX')+dec;
+}
+function uid(){return Date.now()+Math.floor(Math.random()*999)}
+function dateVal(id){return document.getElementById(id).value || new Date().toISOString().slice(0,10)}
+function toggleOther(selectId,boxId){
+  document.getElementById(boxId).classList.toggle('hidden',document.getElementById(selectId).value!=='Otro');
+}
+document.querySelectorAll('.tab,.navItem').forEach(b=>b.onclick=()=>goTab(b.dataset.tab));
+function goTab(id){
+  document.querySelectorAll('.tab,.navItem').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  document.querySelector('.header h1').textContent=id==='inicio'?'Inicio':id==='movimientos'?'Movimientos':id==='historial'?'Historial':'Config';
   renderAll();
 }
-document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>goTab(btn.dataset.tab));
-document.getElementById('incType').addEventListener('change',e=>{
-  document.getElementById('incExtraType').classList.toggle('hidden',e.target.value!=='Ingreso adicional');
-});
-
-function currentSalaryIncome(){
-  const a=Number(S.salary.amount||0);
-  return S.salary.freq==='quincenal'?a*2:a;
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function openModal(title,html){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('modal').classList.add('show');
 }
-function addIncome(){
-  const desc=document.getElementById('incDesc').value.trim() || document.getElementById('incExtraType').value || 'Ingreso';
-  const amount=Number(document.getElementById('incAmount').value||0);
-  const type=document.getElementById('incType').value;
-  const subtype=document.getElementById('incExtraType').value;
-  const date=document.getElementById('incDate').value || new Date().toISOString().slice(0,10);
-  if(!amount)return;
-  S.incomes.unshift({id:Date.now(),desc,amount,type,subtype,date});
-  saveState(); clearIncomeForm(); renderAll(); toggleBox('incomeBox');
+function openAddMovement(){
+  const cardOptions=S.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  openModal('Agregar movimiento',`
+    <div class="inputGroup"><label>Tipo</label><select id="mvType" onchange="toggleMovementType()">
+      <option value="gasto">Gasto</option><option value="ingreso">Ingreso</option>
+    </select></div>
+    <div id="expenseFields">
+      <div class="inputGroup"><label>Fecha</label><input id="mvDate" type="date"></div>
+      <div class="inputGroup"><label>Concepto</label><input id="mvConcept" placeholder="Ej. Uber"></div>
+      <div class="inputGroup"><label>Importe</label><input id="mvAmount" inputmode="decimal" oninput="moneyInput(this)"></div>
+      <div class="inputGroup"><label>Categoría</label><select id="mvCat">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div class="inputGroup"><label>Método de pago</label><select id="payMethod" onchange="togglePayMethod()">
+        <option>Débito</option><option>Efectivo</option><option>Transferencia</option><option>Tarjeta de crédito</option>
+      </select></div>
+      <div class="inputGroup hidden" id="tcBox"><label>Tarjeta</label><select id="mvCard">${cardOptions||'<option value="">Sin tarjetas</option>'}</select></div>
+      <div class="inputGroup"><label>Tipo de pago</label><select id="paymentType" onchange="toggleInstallments()">
+        <option value="una">Una exhibición</option><option value="meses">A meses</option>
+      </select></div>
+      <div id="installBox" class="hidden">
+        <div class="inputGroup"><label>Meses</label><input id="instMonths" type="number" placeholder="12"></div>
+        <div class="inputGroup"><label>Fecha inicio</label><input id="instStart" type="date"></div>
+      </div>
+    </div>
+    <div id="incomeFields" class="hidden">
+      <div class="inputGroup"><label>Fecha</label><input id="mvIncDate" type="date"></div>
+      <div class="inputGroup"><label>Concepto</label><input id="mvIncConcept" placeholder="Ej. Reembolso"></div>
+      <div class="inputGroup"><label>Importe</label><input id="mvIncAmount" inputmode="decimal" oninput="moneyInput(this)"></div>
+    </div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveMovement()">Guardar</button>
+  `);
 }
-function clearIncomeForm(){
-  ['incDesc','incAmount'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('incDate').value='';
+function toggleMovementType(){
+  const isInc=document.getElementById('mvType').value==='ingreso';
+  document.getElementById('expenseFields').classList.toggle('hidden',isInc);
+  document.getElementById('incomeFields').classList.toggle('hidden',!isInc);
 }
-
-function paymentMethodOptions(){
-  const base=['Débito','Efectivo','Transferencia'];
-  const cards=S.cards.map(c=>`TC:${c.name}`);
-  return [...base,...cards];
+function togglePayMethod(){
+  document.getElementById('tcBox').classList.toggle('hidden',document.getElementById('payMethod').value!=='Tarjeta de crédito');
 }
-function refreshPaymentMethodSelect(){
-  const sel=document.getElementById('expMethod');
-  const current=sel.value;
-  sel.innerHTML=paymentMethodOptions().map(v=>`<option>${v}</option>`).join('');
-  if(paymentMethodOptions().includes(current)) sel.value=current;
-  refreshCardPaymentSelect();
+function toggleInstallments(){
+  document.getElementById('installBox').classList.toggle('hidden',document.getElementById('paymentType').value!=='meses');
 }
-function refreshCardPaymentSelect(){
-  document.getElementById('cardPaymentCard').innerHTML=S.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-}
-function refreshLoanSelect(){
-  document.getElementById('loanSelect').innerHTML=S.loans.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
-}
-function addExpense(){
-  const desc=document.getElementById('expDesc').value.trim()||'Gasto';
-  const amount=Number(document.getElementById('expAmount').value||0);
-  const cat=document.getElementById('expCat').value;
-  const method=document.getElementById('expMethod').value;
-  const date=document.getElementById('expDate').value || new Date().toISOString().slice(0,10);
-  if(!amount)return;
-  const exp={id:Date.now(),desc,amount,cat,method,date};
-  if(String(method).startsWith('TC:')){
-    const cardName=method.replace('TC:','');
-    const card=S.cards.find(c=>c.name===cardName);
-    if(card){
-      exp.cardId=card.id;
-      exp.dueKey=computeCardDueKey(card,date);
+function saveMovement(){
+  const type=document.getElementById('mvType').value;
+  if(type==='ingreso'){
+    const amount=parseMoney(document.getElementById('mvIncAmount').value);
+    if(!amount)return;
+    S.movements.unshift({id:uid(),type:'ingreso',concept:document.getElementById('mvIncConcept').value||'Ingreso',amount,date:dateVal('mvIncDate'),cat:'Ingreso'});
+  }else{
+    const amount=parseMoney(document.getElementById('mvAmount').value);
+    if(!amount)return;
+    const method=document.getElementById('payMethod').value;
+    const paymentType=document.getElementById('paymentType').value;
+    let obj={id:uid(),type:'gasto',concept:document.getElementById('mvConcept').value||'Gasto',amount,date:dateVal('mvDate'),cat:document.getElementById('mvCat').value,method,paymentType};
+    if(method==='Tarjeta de crédito'){
+      obj.cardId=Number(document.getElementById('mvCard').value);
+      obj.dueKey=cardDueKey(cardById(obj.cardId),obj.date);
     }
+    if(paymentType==='meses'){
+      obj.months=Number(document.getElementById('instMonths').value||1);
+      obj.start=dateVal('instStart');
+      obj.monthly=amount/obj.months;
+    }
+    S.movements.unshift(obj);
   }
-  S.expenses.unshift(exp);
-  saveState(); clearExpenseForm(); renderAll(); toggleBox('expenseBox');
+  save();closeModal();renderAll();
 }
-function clearExpenseForm(){
-  ['expDesc','expAmount','expDate'].forEach(id=>document.getElementById(id).value='');
-}
-function computeCardDueKey(card,dateStr){
-  const d=new Date(dateStr);
-  const day=d.getDate();
-  const month=d.getMonth();
-  const year=d.getFullYear();
-  const dueMonthOffset=day<=Number(card.cutDay)?1:2;
-  const dueDate=new Date(year,month+dueMonthOffset,1);
-  return monthKey(dueDate);
+function cardById(id){return S.cards.find(c=>c.id===Number(id))}
+function cardDueKey(card,date){
+  if(!card)return currentKey;
+  const d=new Date(date);
+  const after=d.getDate()>Number(card.cut);
+  return mk(new Date(d.getFullYear(),d.getMonth()+(after?2:1),1));
 }
 function saveSalary(){
-  S.salary.amount=Number(document.getElementById('salaryAmount').value||0);
-  S.salary.freq=document.getElementById('salaryFreq').value;
-  saveState(); renderAll();
+  S.salary=parseMoney(document.getElementById('salaryAmount').value);
+  document.getElementById('salaryAmount').value='';
+  save();renderAll();
 }
-function addRecurringTemplate(){
-  const name=document.getElementById('rName').value.trim();
-  const cat=document.getElementById('rCat').value;
-  const day=Number(document.getElementById('rDay').value||0);
-  if(!name||!day)return;
-  const exists=S.recurringTemplates.find(r=>r.name.toLowerCase()===name.toLowerCase());
-  if(exists){exists.cat=cat;exists.day=day;}
-  else S.recurringTemplates.push({id:Date.now(),name,cat,day});
-  saveState();
-  document.getElementById('rName').value='';
-  document.getElementById('rDay').value='';
-  renderAll();
-}
-function recurringEntry(templateId,key){
-  S.recurringMonthly[key]=S.recurringMonthly[key]||{};
-  return S.recurringMonthly[key][templateId];
-}
-function setRecurringStatus(templateId,status,amount=0){
-  S.recurringMonthly[currentKey]=S.recurringMonthly[currentKey]||{};
-  S.recurringMonthly[currentKey][templateId]={status,amount:Number(amount||0)};
-  saveState(); renderAll();
-}
-function addCard(){
-  const name=document.getElementById('cName').value.trim();
-  const limit=Number(document.getElementById('cLimit').value||0);
-  const cutDay=Number(document.getElementById('cCut').value||0);
-  const payDay=Number(document.getElementById('cPay').value||0);
-  if(!name||!limit||!cutDay||!payDay)return;
-  S.cards.push({id:Date.now(),name,limit,cutDay,payDay,available:limit});
-  saveState();
-  ['cName','cLimit','cCut','cPay'].forEach(id=>document.getElementById(id).value='');
-  renderAll();
-}
-function addCardPayment(){
-  const cardId=Number(document.getElementById('cardPaymentCard').value);
-  const amount=Number(document.getElementById('cardPaymentAmount').value||0);
-  const available=Number(document.getElementById('cardAvailableNow').value||0);
-  const date=document.getElementById('cardPaymentDate').value || new Date().toISOString().slice(0,10);
-  if(!cardId)return;
-  const card=S.cards.find(c=>c.id===cardId);
-  if(!card)return;
-  if(available>=0) card.available=available;
-  S.cardPayments.unshift({id:Date.now(),cardId,amount,date,available});
-  saveState();
-  ['cardPaymentAmount','cardAvailableNow','cardPaymentDate'].forEach(id=>document.getElementById(id).value='');
-  renderAll();
-}
-function addLoan(){
-  const name=document.getElementById('lName').value.trim();
-  const balance=Number(document.getElementById('lBalance').value||0);
-  if(!name)return;
-  S.loans.push({id:Date.now(),name,balance});
-  saveState();
-  ['lName','lBalance'].forEach(id=>document.getElementById(id).value='');
-  renderAll();
-}
-function updateLoan(){
-  const loanId=Number(document.getElementById('loanSelect').value);
-  const capitalPayment=Number(document.getElementById('loanCapitalPayment').value||0);
-  const newBalance=Number(document.getElementById('loanNewBalance').value||0);
-  const date=document.getElementById('loanDate').value || new Date().toISOString().slice(0,10);
-  const loan=S.loans.find(l=>l.id===loanId);
-  if(!loan)return;
-  loan.balance=newBalance;
-  S.loanLogs.unshift({id:Date.now(),loanId,capitalPayment,balance:newBalance,date});
-  saveState();
-  ['loanCapitalPayment','loanNewBalance','loanDate'].forEach(id=>document.getElementById(id).value='');
-  renderAll();
-}
-function addSaving(){
-  const name=document.getElementById('sName').value.trim()||'Ahorro';
-  const amount=Number(document.getElementById('sAmount').value||0);
-  const date=document.getElementById('sDate').value || new Date().toISOString().slice(0,10);
+function addExtraIncome(){
+  const type=document.getElementById('extraType').value==='Otro'?(document.getElementById('extraOtherText').value||'Otro'):document.getElementById('extraType').value;
+  const amount=parseMoney(document.getElementById('extraAmount').value);
   if(!amount)return;
-  S.savings.unshift({id:Date.now(),name,amount,date});
-  saveState();
-  ['sName','sAmount','sDate'].forEach(id=>document.getElementById(id).value='');
-  renderAll();
+  S.extraIncomes.unshift({id:uid(),type,amount,date:dateVal('extraDate')});
+  ['extraAmount','extraOtherText','extraDate'].forEach(id=>document.getElementById(id).value='');
+  save();renderAll();
 }
-function addInstallment(){
-  const name=document.getElementById('mName').value.trim();
-  const total=Number(document.getElementById('mTotal').value||0);
-  const months=Number(document.getElementById('mMonths').value||0);
-  const start=document.getElementById('mStart').value;
-  if(!name||!total||!months||!start)return;
-  S.installments.push({id:Date.now(),name,total,months,start,monthly:total/months});
-  saveState();
-  ['mName','mTotal','mMonths','mStart'].forEach(id=>document.getElementById(id).value='');
-  renderAll();
+function openAddCard(editId){
+  const c=editId?cardById(editId):{};
+  openModal(editId?'Editar tarjeta':'Agregar tarjeta',`
+    <div class="inputGroup"><label>Nombre</label><input id="cardName" value="${c.name||''}"></div>
+    <div class="inputGroup"><label>Línea total</label><input id="cardLimit" inputmode="decimal" oninput="moneyInput(this)" value="${c.limit?Number(c.limit).toLocaleString('es-MX'):''}"></div>
+    <div class="inputGroup"><label>Línea disponible actual</label><input id="cardAvail" inputmode="decimal" oninput="moneyInput(this)" value="${c.available?Number(c.available).toLocaleString('es-MX'):''}"></div>
+    <div class="inputGroup"><label>Corte</label><input id="cardCut" type="number" value="${c.cut||''}" placeholder="18"></div>
+    <div class="inputGroup"><label>Pago</label><input id="cardPay" type="number" value="${c.pay||''}" placeholder="8"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveCard(${editId||0})">Guardar tarjeta</button>
+  `);
 }
-function resetAll(){
-  if(!confirm('¿Eliminar datos registrados?')) return;
-  S=JSON.parse(JSON.stringify(initialState));
-  saveState(); renderAll();
+function saveCard(id){
+  const data={name:document.getElementById('cardName').value||'Tarjeta',limit:parseMoney(document.getElementById('cardLimit').value),available:parseMoney(document.getElementById('cardAvail').value),cut:Number(document.getElementById('cardCut').value),pay:Number(document.getElementById('cardPay').value)};
+  if(id){Object.assign(cardById(id),data)}
+  else S.cards.push({id:uid(),...data});
+  save();closeModal();renderAll();
 }
-function monthExpenses(key){
-  return S.expenses.filter(x=>monthKey(x.date)===key).reduce((a,b)=>a+Number(b.amount||0),0);
+function openCardPayment(cardId){
+  const c=cardById(cardId);
+  openModal('Registrar pago',`
+    <div class="inputGroup"><label>Tarjeta</label><input value="${c?.name||''}" disabled></div>
+    <div class="inputGroup"><label>Fecha</label><input id="payDate" type="date"></div>
+    <div class="inputGroup"><label>Pago realizado</label><input id="payAmount" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <div class="inputGroup"><label>Adeudo actualizado</label><input id="payDebt" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <div class="inputGroup"><label>Línea disponible actual</label><input id="payAvail" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveCardPayment(${cardId})">Guardar pago</button>
+  `);
 }
-function monthExtraIncome(key){
-  return S.incomes.filter(x=>monthKey(x.date)===key).reduce((a,b)=>a+Number(b.amount||0),0);
+function saveCardPayment(cardId){
+  const amount=parseMoney(document.getElementById('payAmount').value);
+  const avail=parseMoney(document.getElementById('payAvail').value);
+  const debt=parseMoney(document.getElementById('payDebt').value);
+  const date=dateVal('payDate');
+  const card=cardById(cardId);
+  if(card)card.available=avail;
+  S.cardPayments.unshift({id:uid(),cardId,amount,debt,available:avail,date,dueKey:currentKey});
+  S.movements.unshift({id:uid(),type:'egreso',concept:`Pago ${card?.name||'tarjeta'}`,amount,date,cat:'Pago TC',method:'Tarjeta de crédito'});
+  save();closeModal();renderAll();
 }
-function monthSavings(key){
-  return S.savings.filter(x=>monthKey(x.date)===key).reduce((a,b)=>a+Number(b.amount||0),0);
+  <script>
+function openAddFixed(editId){
+  const f=editId?S.fixed.find(x=>x.id===editId):{};
+  openModal(editId?'Editar gasto fijo':'Agregar gasto fijo',`
+    <div class="inputGroup"><label>Categoría</label><select id="fixedCat" onchange="toggleOther('fixedCat','fixedOther')">
+      <option ${f.cat==='Hogar'?'selected':''}>Hogar</option>
+      <option ${f.cat==='Plataformas'?'selected':''}>Plataformas</option>
+      <option ${f.cat==='Salud'?'selected':''}>Salud</option>
+      <option ${f.cat==='Transporte'?'selected':''}>Transporte</option>
+      <option ${f.cat==='Despensa'?'selected':''}>Despensa</option>
+      <option ${f.cat==='Uber'?'selected':''}>Uber</option>
+      <option ${f.cat==='Otro'?'selected':''}>Otro</option>
+    </select></div>
+    <div class="inputGroup ${f.cat==='Otro'?'':'hidden'}" id="fixedOther"><label>¿Cuál gasto fijo?</label><input id="fixedNameOther" value="${f.name||''}"></div>
+    <div class="inputGroup"><label>Concepto</label><input id="fixedName" value="${f.cat==='Otro'?'':(f.name||'')}"></div>
+    <div class="inputGroup"><label>Día de pago</label><input id="fixedDay" type="number" value="${f.day||''}" placeholder="5"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveFixed(${editId||0})">Guardar gasto fijo</button>
+  `);
 }
-function monthRecurringCommitted(key){
-  const entries=S.recurringMonthly[key]||{};
-  return Object.values(entries).reduce((sum,e)=>sum+(e.status==='Pagado'?Number(e.amount||0):0),0);
+function saveFixed(id){
+  const cat=document.getElementById('fixedCat').value;
+  const name=cat==='Otro'?(document.getElementById('fixedNameOther').value||'Otro'):(document.getElementById('fixedName').value||cat);
+  const day=Number(document.getElementById('fixedDay').value||1);
+  if(id){Object.assign(S.fixed.find(x=>x.id===id),{cat,name,day})}
+  else{
+    const exists=S.fixed.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    if(exists)Object.assign(exists,{cat,name,day});
+    else S.fixed.push({id:uid(),cat,name,day,lastAmount:0});
+  }
+  save();closeModal();renderAll();
 }
-function monthRecurringRowsHome(){
-  return S.recurringTemplates.map(t=>{
-    const entry=recurringEntry(t.id,currentKey);
-    let right='Pendiente';
-    if(entry?.status==='Pagado') right=formatMoney(entry.amount);
-    if(entry?.status==='No aplica') right='No aplica';
-    return {left:t.name,right,template:t,entry};
-  });
+function confirmFixed(id){
+  openModal('Confirmar gasto fijo',`
+    <div class="inputGroup"><label>Fecha</label><input id="fixPayDate" type="date"></div>
+    <div class="inputGroup"><label>Importe real</label><input id="fixPayAmount" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveFixedMonth(${id},'Pagado')">Guardar pago</button>
+    <button class="btn soft" style="margin-top:10px" onclick="saveFixedMonth(${id},'No aplica')">No aplica</button>
+  `);
 }
-function dueCardsForKey(key){
-  return S.cards.map(card=>{
-    const amount=S.expenses.filter(e=>e.cardId===card.id && e.dueKey===key).reduce((a,b)=>a+Number(b.amount||0),0);
-    return {card,amount};
-  }).filter(x=>x.amount>0);
+function saveFixedMonth(id,status){
+  const amount=status==='Pagado'?parseMoney(document.getElementById('fixPayAmount').value):0;
+  S.fixedMonthly[currentKey]=S.fixedMonthly[currentKey]||{};
+  S.fixedMonthly[currentKey][id]={status,amount,date:dateVal('fixPayDate')};
+  const f=S.fixed.find(x=>x.id===id);
+  if(f&&amount)f.lastAmount=amount;
+  if(status==='Pagado'){
+    S.movements.unshift({id:uid(),type:'egreso',concept:f?.name||'Gasto fijo',amount,date:dateVal('fixPayDate'),cat:f?.cat||'Gasto fijo',method:'Fijo'});
+  }
+  save();closeModal();renderAll();
 }
-function totalCommitted(){
-  const recurringDue=monthRecurringRowsHome().reduce((s,r)=>s+(r.entry?.status==='Pagado'?Number(r.entry.amount||0):0),0);
-  const cardsDue=dueCardsForKey(currentKey).reduce((s,r)=>s+r.amount,0);
-  const installmentsDue=S.installments.reduce((sum,item)=>sum+installmentMonthlyDue(item,currentKey),0);
-  const loansThisMonth=S.loanLogs.filter(x=>monthKey(x.date)===currentKey).reduce((s,x)=>s+Number(x.capitalPayment||0),0);
-  return recurringDue+cardsDue+installmentsDue+loansThisMonth+monthExpenses(currentKey);
+function openAddLoan(editId){
+  const l=editId?S.loans.find(x=>x.id===editId):{};
+  openModal(editId?'Editar préstamo':'Agregar préstamo',`
+    <div class="inputGroup"><label>Nombre</label><input id="loanName" value="${l.name||''}"></div>
+    <div class="inputGroup"><label>Saldo pendiente</label><input id="loanBalance" inputmode="decimal" oninput="moneyInput(this)" value="${l.balance?Number(l.balance).toLocaleString('es-MX'):''}"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveLoan(${editId||0})">Guardar préstamo</button>
+  `);
 }
-function installmentMonthlyDue(item,key){
-  const start=new Date(item.start);
+function saveLoan(id){
+  const data={name:document.getElementById('loanName').value||'Préstamo',balance:parseMoney(document.getElementById('loanBalance').value)};
+  if(id)Object.assign(S.loans.find(x=>x.id===id),data);
+  else S.loans.push({id:uid(),...data});
+  save();closeModal();renderAll();
+}
+function openLoanPayment(id){
+  const l=S.loans.find(x=>x.id===id);
+  openModal('Actualizar préstamo',`
+    <div class="inputGroup"><label>Fecha</label><input id="loanPayDate" type="date"></div>
+    <div class="inputGroup"><label>Abono a capital</label><input id="loanPayAmount" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <div class="inputGroup"><label>Saldo pendiente</label><input id="loanPayBalance" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveLoanPayment(${id})">Guardar</button>
+  `);
+}
+function saveLoanPayment(id){
+  const l=S.loans.find(x=>x.id===id);
+  const amount=parseMoney(document.getElementById('loanPayAmount').value);
+  const balance=parseMoney(document.getElementById('loanPayBalance').value);
+  const date=dateVal('loanPayDate');
+  if(l)l.balance=balance;
+  S.loanLogs.unshift({id:uid(),loanId:id,amount,balance,date});
+  S.movements.unshift({id:uid(),type:'egreso',concept:`Abono ${l?.name||'préstamo'}`,amount,date,cat:'Préstamo',method:'Transferencia'});
+  save();closeModal();renderAll();
+}
+function openAddSaving(){
+  openModal('Registrar ahorro',`
+    <div class="inputGroup"><label>Fecha</label><input id="savDate" type="date"></div>
+    <div class="inputGroup"><label>Concepto</label><input id="savName" placeholder="Ahorro general"></div>
+    <div class="inputGroup"><label>Importe</label><input id="savAmount" inputmode="decimal" oninput="moneyInput(this)"></div>
+    <button class="btn primary" style="margin-top:14px" onclick="saveSaving()">Guardar ahorro</button>
+  `);
+}
+function saveSaving(){
+  const amount=parseMoney(document.getElementById('savAmount').value);
+  if(!amount)return;
+  S.savings.unshift({id:uid(),name:document.getElementById('savName').value||'Ahorro',amount,date:dateVal('savDate')});
+  save();closeModal();renderAll();
+}
+function deleteItem(type,id){
+  if(!confirm('¿Eliminar registro?'))return;
+  S[type]=S[type].filter(x=>x.id!==id);
+  save();renderAll();
+}
+function resetData(){
+  if(!confirm('¿Eliminar datos registrados?'))return;
+  S=blank();save();renderAll();
+}
+function salaryMonth(){return Number(S.salary||0)*2}
+function salaryNow(){return Number(S.salary||0)}
+function extraIncomeMonth(){return S.extraIncomes.filter(x=>mk(x.date)===currentKey).reduce((a,b)=>a+b.amount,0)}
+function savingsTotal(){return S.savings.reduce((a,b)=>a+b.amount,0)}
+function cashOutMonth(){
+  return S.movements.filter(x=>mk(x.date)===currentKey && (x.type==='egreso'||(x.type==='gasto'&&x.method!=='Tarjeta de crédito'))).reduce((a,b)=>a+b.amount,0);
+}
+function gastosConsumoMonth(){
+  return S.movements.filter(x=>mk(x.date)===currentKey && x.type==='gasto').reduce((a,b)=>{
+    if(b.paymentType==='meses')return a+(b.monthly||0);
+    return a+b.amount;
+  },0);
+}
+function cardDue(cardId,key=currentKey){
+  const charges=S.movements.filter(x=>x.cardId===cardId).reduce((a,b)=>{
+    if(b.paymentType==='meses')return a+installmentDue(b,key);
+    return a+(b.dueKey===key?b.amount:0);
+  },0);
+  const pays=S.cardPayments.filter(p=>p.cardId===cardId&&p.dueKey===key).reduce((a,b)=>a+b.amount,0);
+  return Math.max(0,charges-pays);
+}
+function installmentDue(x,key){
+  if(!x.start||!x.months)return 0;
+  const s=new Date(x.start);
   const [yy,mm]=key.split('-').map(Number);
-  const targetIndex=(yy-start.getFullYear())*12+(mm-1-start.getMonth());
-  return (targetIndex>=0 && targetIndex<item.months)?Number(item.monthly||0):0;
+  const idx=(yy-s.getFullYear())*12+(mm-1-s.getMonth());
+  return idx>=0&&idx<x.months?(x.monthly||0):0;
 }
-function installmentStatus(item,key){
-  const start=new Date(item.start);
-  const [yy,mm]=key.split('-').map(Number);
-  const targetIndex=(yy-start.getFullYear())*12+(mm-1-start.getMonth());
-  if(targetIndex<0) return 'Próximo';
-  if(targetIndex>=item.months) return 'Finalizado';
-  const nowIndex=(y-start.getFullYear())*12+(m-start.getMonth());
-  return targetIndex<nowIndex?'Pagado':targetIndex===nowIndex?'Pendiente':'Próximo';
+function fixedCommitments(){
+  return S.fixed.reduce((sum,f)=>{
+    const e=S.fixedMonthly[currentKey]?.[f.id];
+    if(e?.status==='No aplica')return sum;
+    if(e?.status==='Pagado')return sum;
+    return sum+(f.lastAmount||0);
+  },0)
 }
-function recurringStateText(){
-  const rows=monthRecurringRowsHome();
-  const pending=rows.filter(r=>!r.entry).length;
-  const noapply=rows.filter(r=>r.entry?.status==='No aplica').length;
-  const paid=rows.filter(r=>r.entry?.status==='Pagado').length;
-  if(pending>0) return 'Próximo pago';
-  if(noapply>0 && paid===0) return 'Estable';
-  return 'Buen ritmo';
+function aPagarTotal(){
+  const tc=S.cards.reduce((a,c)=>a+cardDue(c.id),0);
+  return tc+fixedCommitments();
 }
-function categorySummary(key){
-  const map={};
-  S.expenses.filter(x=>monthKey(x.date)===key).forEach(e=>map[e.cat]=(map[e.cat]||0)+Number(e.amount||0));
-  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+function saldoActual(){
+  return salaryNow()+extraIncomeMonth()-cashOutMonth();
 }
-function trendsForHome(){
-  const thisCats=Object.fromEntries(categorySummary(currentKey));
-  const lastCats=Object.fromEntries(categorySummary(lastKey));
-  const out=[];
-  const keys=new Set([...Object.keys(thisCats),...Object.keys(lastCats)]);
-  keys.forEach(k=>{
-    const diff=(thisCats[k]||0)-(lastCats[k]||0);
-    if(diff>0) out.push({label:`▲ ${k}`,amount:diff,cls:'up'});
-    if(diff<0) out.push({label:`▼ ${k}`,amount:diff,cls:'down'});
-  });
-  const totalDiff=monthExpenses(currentKey)-monthExpenses(lastKey);
-  if(totalDiff>0) out.push({label:'▲ Total gasto',amount:totalDiff,cls:'up'});
-  if(totalDiff<0) out.push({label:'▼ Total gasto',amount:totalDiff,cls:'down'});
-  return out.slice(0,3);
-}
+function saldoDisponible(){return saldoActual()-aPagarTotal()}
 function renderHome(){
-  const income=currentSalaryIncome()+monthExtraIncome(currentKey);
-  const recurringPaid=monthRecurringRowsHome().reduce((s,r)=>s+(r.entry?.status==='Pagado'?Number(r.entry.amount||0):0),0);
-  const cardsDue=dueCardsForKey(currentKey).reduce((s,r)=>s+r.amount,0);
-  const installmentsDue=S.installments.reduce((sum,item)=>sum+installmentMonthlyDue(item,currentKey),0);
-  const expenses=monthExpenses(currentKey);
-  const savings=monthSavings(currentKey);
-  const committed=recurringPaid+cardsDue+installmentsDue+expenses;
-  const leftover=income-committed-savings;
+  document.getElementById('saldoActual').textContent=fm(saldoActual());
+  document.getElementById('proximaQuincena').textContent=`Próxima quincena: ${fm(S.salary||0)}`;
+  document.getElementById('sueldoMensual').textContent=`Sueldo mensual: ${fm(salaryMonth())}`;
+  document.getElementById('aPagar').textContent=fm(aPagarTotal());
+  document.getElementById('saldoDisponible').textContent=fm(saldoDisponible());
+  document.getElementById('ahorroTotal').textContent=fm(savingsTotal());
+  document.getElementById('gastosMes').textContent='-'+fm(gastosConsumoMonth()).replace('$','$');
 
-  document.getElementById('incomeState').textContent=income>0?'Ingreso registrado':'Sin ingreso';
-  document.getElementById('leftoverValue').textContent=formatMoney(leftover);
-  document.getElementById('leftoverValue').className='big '+(leftover<0?'negative':'positive');
-  document.getElementById('leftoverLine').textContent=`Ingreso ${formatMoney(income)} · Gastos ${formatMoney(expenses)}`;
-  document.getElementById('pulseState').textContent=leftover<0?'Ajustado':recurringStateText();
-  document.getElementById('incomeTotal').textContent=formatMoney(income);
-  document.getElementById('committedTotal').textContent=formatMoney(committed);
-  document.getElementById('savingsTotal').textContent=formatMoney(savings);
+  const catMap={};
+  S.movements.filter(x=>mk(x.date)===currentKey&&x.type==='gasto').forEach(x=>catMap[x.cat]=(catMap[x.cat]||0)+(x.paymentType==='meses'?(x.monthly||0):x.amount));
+  const catsSorted=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('categoriasHome').innerHTML=catsSorted.length?catsSorted.map(([k,v])=>`
+    <div class="row"><div><div class="rowMain">${k}</div><div class="progress"><span style="width:${Math.min(100,(v/(gastosConsumoMonth()||1))*100)}%"></span></div></div><div class="amountRight">-${fm(v).replace('$','$')}</div></div>
+  `).join(''):'<div class="empty">Sin movimientos</div>';
 
-  const cardsHome=dueCardsForKey(currentKey);
-  document.getElementById('cardsDueHome').innerHTML=cardsHome.length
-    ? cardsHome.map(x=>`<div class="row"><div>${x.card.name}</div><div class="right">${formatMoney(x.amount)}</div></div>`).join('')
-    : `<div class="small">Sin pagos próximos</div>`;
+  document.getElementById('tarjetasHome').innerHTML=S.cards.length?S.cards.map(c=>`
+    <div class="row" onclick="openCardPayment(${c.id})"><div><div class="rowMain">${c.name}</div><div class="rowSub">Pago: ${c.pay} de cada mes</div></div><div class="amountRight redText">${fm(cardDue(c.id))}</div></div>
+  `).join(''):'<div class="empty">Sin tarjetas</div>';
 
-  const cats=categorySummary(currentKey);
-  document.getElementById('categoryHome').innerHTML=cats.length
-    ? cats.map(([k,v])=>`<div class="row"><div>${k}</div><div class="right">${formatMoney(v)}</div></div>`).join('')
-    : `<div class="small">Sin movimientos</div>`;
-
-  const recurringRows=monthRecurringRowsHome();
-  document.getElementById('recurringHome').innerHTML=recurringRows.length
-    ? recurringRows.map(r=>`
-      <div class="row">
-        <div>
-          ${r.left}
-          <div class="small">Día ${r.template.day}</div>
-          ${!r.entry?`<div style="margin-top:8px;display:flex;gap:8px">
-            <button class="btn soft" style="padding:8px 10px;font-size:12px" onclick="confirmRecurring(${r.template.id})">Confirmar</button>
-            <button class="btn soft" style="padding:8px 10px;font-size:12px" onclick="setRecurringStatus(${r.template.id},'No aplica',0)">No aplica</button>
-          </div>`:''}
-        </div>
-        <div class="right">${r.right}</div>
-      </div>`).join('')
-    : `<div class="small">Sin pagos recurrentes</div>`;
-
-  const trends=trendsForHome();
-  document.getElementById('trendsHome').innerHTML=trends.length
-    ? trends.map(t=>`<div class="row"><div>${t.label}</div><div class="right ${t.cls}">${t.amount>0?'+':''}${formatMoney(t.amount).replace('$','$')}</div></div>`).join('')
-    : `<div class="small">Estable</div>`;
-
-  const movements=[...S.expenses.map(x=>({type:'Gasto',desc:x.desc,amount:x.amount,date:x.date})),...S.incomes.map(x=>({type:'Ingreso',desc:x.desc,amount:x.amount,date:x.date}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
-  document.getElementById('latestHome').innerHTML=movements.length
-    ? movements.map(m=>`<div class="row"><div>${m.desc}</div><div class="right">${formatMoney(m.amount)}</div></div>`).join('')
-    : `<div class="small">Sin movimientos</div>`;
-}
-function confirmRecurring(id){
-  const amount=prompt('Importe real de este mes');
-  if(amount===null) return;
-  setRecurringStatus(id,'Pagado',Number(amount||0));
+  document.getElementById('fijosHome').innerHTML=S.fixed.length?S.fixed.map(f=>{
+    const e=S.fixedMonthly[currentKey]?.[f.id];
+    const status=e?.status||'Pendiente';
+    return `<div class="row"><div><div class="rowMain">${f.name}</div><div class="rowSub">Día ${f.day}</div></div><div class="amountRight" onclick="confirmFixed(${f.id})">${status}</div></div>`
+  }).join(''):'<div class="empty">Sin gastos fijos</div>';
 }
 function renderMovements(){
-  const items=[...S.expenses.map(x=>({kind:'Gasto',label:x.desc,meta:x.cat,date:x.date,amount:x.amount})),...S.incomes.map(x=>({kind:'Ingreso',label:x.desc,meta:x.type==='Ingreso adicional'?(x.subtype||x.type):x.type,date:x.date,amount:x.amount}))].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  document.getElementById('allMovements').innerHTML=items.length
-    ? items.map(i=>`<div class="row"><div>${i.label}<div class="small">${i.meta}</div></div><div class="right">${formatMoney(i.amount)}</div></div>`).join('')
-    : `<div class="small">Sin movimientos</div>`;
-}
-function renderMonths(){
-  const total=S.installments.reduce((sum,item)=>sum+installmentMonthlyDue(item,currentKey),0);
-  document.getElementById('monthsMonthlyTotal').textContent=formatMoney(total);
-  document.getElementById('monthsState').textContent=total>0?'Carga alta':'Estable';
-  document.getElementById('monthsList').innerHTML=S.installments.length
-    ? S.installments.map(item=>{
-      const start=new Date(item.start);
-      const lines=[];
-      for(let i=0;i<item.months;i++){
-        const d=new Date(start.getFullYear(),start.getMonth()+i,1);
-        const label=`${monthNames[d.getMonth()]}: ${installmentStatus(item,monthKey(d))}`;
-        lines.push(`<div class="small">${label}</div>`);
-      }
-      return `<div class="card" style="padding:14px;margin-bottom:10px">
-        <div class="row"><div>${item.name}</div><div class="right">${formatMoney(item.monthly)}</div></div>
-        <div class="small">Total ${formatMoney(item.total)} · ${item.months} meses</div>
-        <div style="margin-top:8px">${lines.join('')}</div>
-      </div>`;
-    }).join('')
-    : `<div class="small">Sin compras a meses</div>`;
+  const type=document.getElementById('filterType').value;
+  const cat=document.getElementById('filterCat').value;
+  const all=[...S.movements,...S.extraIncomes.map(x=>({id:x.id,type:'ingreso',concept:x.type,amount:x.amount,date:x.date,cat:'Ingreso adicional'}))]
+    .sort((a,b)=>new Date(b.date)-new Date(a.date))
+    .filter(x=>type==='todos'||(type==='ingreso'&&x.type==='ingreso')||(type==='egreso'&&x.type!=='ingreso')||(type==='tc'&&x.method==='Tarjeta de crédito'))
+    .filter(x=>cat==='todas'||x.cat===cat);
+  document.getElementById('movList').innerHTML=all.length?all.map(x=>{
+    const isIn=x.type==='ingreso';
+    const sign=isIn?'+':'-';
+    const cls=isIn?'greenText':'redText';
+    const sub=x.paymentType==='meses'?`A meses · ${x.months} x ${fm(x.monthly)}`:(x.cat||'');
+    return `<div class="row"><div><div class="rowMain">${x.concept}</div><div class="rowSub">${sub}</div></div><div class="amountRight ${cls}">${sign}${fm(x.amount).replace('$','$')}</div></div>`
+  }).join(''):'<div class="empty">Sin movimientos</div>';
 }
 function renderHistory(){
-  const current=monthExpenses(currentKey);
-  const last=monthExpenses(lastKey);
+  const current=gastosConsumoMonth();
+  const last=S.movements.filter(x=>mk(x.date)===lastKey&&x.type==='gasto').reduce((a,b)=>a+(b.paymentType==='meses'?(b.monthly||0):b.amount),0);
   const diff=current-last;
-  document.getElementById('histCurrent').textContent=formatMoney(current);
-  document.getElementById('histVariation').textContent=(diff>0?'▲ ':'▼ ')+formatMoney(Math.abs(diff));
-  const top=categorySummary(currentKey)[0];
-  document.getElementById('histTopCat').textContent=top?top[0]:'—';
+  document.getElementById('histGasto').textContent=fm(current);
+  document.getElementById('histDiff').textContent=(diff>=0?'+':'-')+fm(Math.abs(diff)).replace('$','$');
+  document.getElementById('histDiff').className='amount '+(diff>0?'redText':'greenText');
+  const map={};S.movements.filter(x=>x.type==='gasto').forEach(x=>map[x.cat]=(map[x.cat]||0)+(x.paymentType==='meses'?(x.monthly||0):x.amount));
+  const top=Object.entries(map).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('histTop').textContent=top?top[0]:'—';
   document.getElementById('histInsight').textContent=diff>0?'Incremento en gasto':diff<0?'Mayor ahorro':'Estable';
-  document.getElementById('histThisMonthLabel').textContent=monthNames[m];
-  document.getElementById('histLastMonthLabel').textContent=monthNames[(m+11)%12];
-  document.getElementById('histThisMonth').textContent=formatMoney(current);
-  document.getElementById('histLastMonth').textContent=formatMoney(last);
-  const annualMap={};
-  S.expenses.forEach(e=>annualMap[e.cat]=(annualMap[e.cat]||0)+Number(e.amount||0));
-  document.getElementById('histCategories').innerHTML=Object.keys(annualMap).length
-    ? Object.entries(annualMap).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row"><div>${k}</div><div class="right">${formatMoney(v)}</div></div>`).join('')
-    : `<div class="small">Sin datos</div>`;
+  document.getElementById('comparativoMensual').innerHTML=`
+    <div class="row"><div>${monthNames[today.getMonth()]}</div><div class="amountRight">${fm(current)}</div></div>
+    <div class="row"><div>${monthNames[(today.getMonth()+11)%12]}</div><div class="amountRight">${fm(last)}</div></div>`;
+  document.getElementById('histCategorias').innerHTML=Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row"><div>${k}</div><div class="amountRight">${fm(v)}</div></div>`).join('')||'<div class="empty">Sin datos</div>';
 }
 function renderConfig(){
-  document.getElementById('salaryAmount').value=S.salary.amount||'';
-  document.getElementById('salaryFreq').value=S.salary.freq||'quincenal';
-
-  document.getElementById('recurringTemplates').innerHTML=S.recurringTemplates.length
-    ? S.recurringTemplates.map(t=>{
-      const entries=Object.entries(S.recurringMonthly).map(([k,v])=>v[t.id]?`${k}: ${v[t.id].status==='Pagado'?formatMoney(v[t.id].amount):v[t.id].status}`:'').filter(Boolean).slice(-3).reverse();
-      return `<div class="card" style="padding:14px;margin-bottom:10px">
-        <div class="row"><div>${t.name}</div><div class="right">Día ${t.day}</div></div>
-        <div class="small">${t.cat}</div>
-        ${entries.length?`<div class="note">${entries.join(' · ')}</div>`:''}
-      </div>`;
-    }).join('')
-    : `<div class="small">Sin gastos fijos</div>`;
-
-  document.getElementById('cardsConfigList').innerHTML=S.cards.length
-    ? S.cards.map(c=>{
-      const used=c.limit-Number(c.available||c.limit);
-      return `<div class="card" style="padding:14px;margin-bottom:10px">
-        <div class="row"><div>${c.name}</div><div class="right">${formatMoney(c.limit)}</div></div>
-        <div class="small">Corte ${c.cutDay} · Pago ${c.payDay}</div>
-        <div class="small">Disponible ${formatMoney(c.available||c.limit)} · Usado ${formatMoney(used)}</div>
-      </div>`;
-    }).join('')
-    : `<div class="small">Sin tarjetas</div>`;
-
-  document.getElementById('loansList').innerHTML=S.loans.length
-    ? S.loans.map(l=>`<div class="row"><div>${l.name}</div><div class="right">${formatMoney(l.balance)}</div></div>`).join('')
-    : `<div class="small">Sin préstamos</div>`;
-
-  document.getElementById('savingsList').innerHTML=S.savings.length
-    ? S.savings.slice(0,6).map(s=>`<div class="row"><div>${s.name}<div class="small">${s.date}</div></div><div class="right">${formatMoney(s.amount)}</div></div>`).join('')
-    : `<div class="small">Sin ahorro registrado</div>`;
-
-  refreshPaymentMethodSelect();
-  refreshLoanSelect();
+  document.getElementById('salarySaved').textContent=S.salary?`Sueldo actual: ${fm(S.salary)} quincenal`:''; 
+  document.getElementById('cardsConfig').innerHTML=S.cards.map(c=>`<div class="row"><div><div class="rowMain">${c.name}</div><div class="rowSub">Corte: ${c.cut} de cada mes · Pago: ${c.pay} de cada mes</div><div class="rowSub">Disponible ${fm(c.available)} · Línea ${fm(c.limit)}</div></div><div class="actions"><button onclick="openAddCard(${c.id})">Editar</button><button onclick="deleteItem('cards',${c.id})">Eliminar</button></div></div>`).join('')||'<div class="empty">Sin tarjetas</div>';
+  document.getElementById('fixedConfig').innerHTML=S.fixed.map(f=>`<div class="row"><div><div class="rowMain">${f.name}</div><div class="rowSub">${f.cat} · Día ${f.day}</div></div><div class="actions"><button onclick="openAddFixed(${f.id})">Editar</button><button onclick="deleteItem('fixed',${f.id})">Eliminar</button></div></div>`).join('')||'<div class="empty">Sin gastos fijos</div>';
+  document.getElementById('loansConfig').innerHTML=S.loans.map(l=>`<div class="row"><div><div class="rowMain">${l.name}</div><div class="rowSub">Saldo pendiente ${fm(l.balance)}</div></div><div class="actions"><button onclick="openLoanPayment(${l.id})">Abono</button><button onclick="openAddLoan(${l.id})">Editar</button></div></div>`).join('')||'<div class="empty">Sin préstamos</div>';
+  document.getElementById('savingConfig').innerHTML=S.savings.slice(0,5).map(s=>`<div class="row"><div><div class="rowMain">${s.name}</div><div class="rowSub">${s.date}</div></div><div class="amountRight greenText">${fm(s.amount)}</div></div>`).join('')||'<div class="empty">Sin ahorro</div>';
 }
-function renderAll(){
-  renderHome();
-  renderMovements();
-  renderMonths();
-  renderHistory();
-  renderConfig();
+function renderFilters(){
+  const sel=document.getElementById('filterCat');
+  const current=sel.value;
+  sel.innerHTML='<option value="todas">Todas las categorías</option>'+cats.map(c=>`<option>${c}</option>`).join('');
+  sel.value=current||'todas';
 }
+function renderAll(){renderFilters();renderHome();renderMovements();renderHistory();renderConfig()}
 renderAll();
 </script>
 </body>
