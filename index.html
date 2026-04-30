@@ -13,576 +13,207 @@
 *{box-sizing:border-box}
 body{
  background:linear-gradient(180deg,#0b0f14,#0e1420);
- color:var(--text); font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
- max-width:430px; margin:auto; padding:18px;
+ color:var(--text);
+ font-family:sans-serif;
+ max-width:430px;margin:auto;padding:18px;
 }
 .header{text-align:center;margin-bottom:16px}
 .header h1{margin:0;font-size:24px;font-weight:900}
 .header p{margin:6px 0 0;color:var(--muted)}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{
- background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
- border:1px solid rgba(255,255,255,.08);
- border-radius:18px;padding:14px;margin-bottom:10px;
- box-shadow:0 10px 24px rgba(0,0,0,.25);
-}
+.card{background:#121821;padding:14px;border-radius:18px;margin-bottom:10px}
 .hero{grid-column:span 2}
-.redbg{background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(255,255,255,.03))}
-.greenbg{background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(255,255,255,.03))}
+.redbg{background:#2a0f12}
+.greenbg{background:#0f2a1c}
 
-.label{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#cbd5e1}
-.big{font-size:30px;font-weight:900;margin-top:8px}
-.sectionHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.label{font-size:11px;color:#cbd5e1}
+.big{font-size:28px;font-weight:900;margin-top:6px}
 
-.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-.row:last-child{border-bottom:none}
-.rowTitle{font-weight:700}
-.rowSub{font-size:12px;color:var(--muted)}
+.row{display:flex;justify-content:space-between;margin:8px 0}
 
 button{
- border:none;border-radius:10px;padding:8px 10px;margin-left:6px;
- background:#1f2937;color:#fff;font-size:12px;cursor:pointer
-}
-button.primary{background:linear-gradient(135deg,var(--purple),#5b21b6)}
-button.danger{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4)}
-
-input,select{
- width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);
- background:#0e1420;color:#fff;margin-top:6px
+ background:#1f2937;color:white;border:none;padding:6px 10px;border-radius:8px
 }
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end}
-.modal.show{display:flex}
-.sheet{width:100%;max-width:430px;margin:auto;background:#0e1420;border-radius:18px 18px 0 0;padding:16px}
-.close{float:right;background:transparent}
-
-.moneySign.green{color:var(--green)}
-.moneySign.red{color:var(--red)}
-.moneySign.amber{color:var(--amber)}
-.moneyText{color:#fff}
-.small{font-size:12px;color:var(--muted)}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.amber{color:var(--amber)}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <h1 id="greeting"></h1>
-  <p id="month"></p>
+<h1 id="greeting"></h1>
+<p id="month"></p>
 </div>
 
 <div class="grid">
-  <div class="card hero">
-    <div class="label">Saldo</div>
-    <div class="big" id="saldo"></div>
-  </div>
+<div class="card hero">
+<div class="label">Saldo</div>
+<div class="big" id="saldo"></div>
+</div>
 
-  <div class="card redbg">
-    <div class="label">A pagar</div>
-    <div class="big" id="pagar"></div>
-  </div>
+<div class="card redbg">
+<div class="label">A pagar</div>
+<div class="big" id="pagar"></div>
+</div>
 
-  <div class="card greenbg">
-    <div class="label">Disponible</div>
-    <div class="big" id="disp"></div>
-  </div>
+<div class="card greenbg">
+<div class="label">Disponible</div>
+<div class="big" id="disp"></div>
+</div>
 </div>
 
 <div class="card">
-  <div class="sectionHead">
-    <div class="label">Movimientos</div>
-    <button class="primary" onclick="openMoveModal()">+ Nuevo</button>
-  </div>
-  <div id="moves"></div>
+<h3>Ahorro</h3>
+<div id="savingTotal"></div>
+<div id="savingList"></div>
+<button onclick="addSaving()">+ Ahorrar</button>
+<button onclick="withdrawSaving()">Retirar</button>
 </div>
 
 <div class="card">
-  <div class="sectionHead">
-    <div class="label">Tarjetas</div>
-    <button class="primary" onclick="openCardModal()">+ Tarjeta</button>
-  </div>
-  <div id="cards"></div>
+<h3>Movimientos</h3>
+<button onclick="openMove()">+ Nuevo</button>
+<div id="moves"></div>
 </div>
 
-<div class="card">
-  <div class="sectionHead">
-    <div class="label">Préstamos</div>
-    <button class="primary" onclick="openLoanModal()">+ Préstamo</button>
-  </div>
-  <div id="loans"></div>
-</div>
+<!-- MODAL -->
+<div id="modal" style="display:none">
+<select id="mConceptSelect" onchange="applyConceptSelection()">
+<option value="">Selecciona</option>
+<option>Uber/Transporte</option>
+<option>Restaurante</option>
+<option>Súper</option>
+<option>Vacaciones</option>
+<option>Farmacia</option>
+<option>Emergencia</option>
+<option>Ropa</option>
+<option>Deporte/Gym</option>
+<option>Préstamo</option>
+<option>Tarjeta de Crédito</option>
+<option>Ocio</option>
+<option value="otro">Otro</option>
+</select>
 
-<div class="card">
-  <div class="sectionHead">
-    <div class="label">Gastos fijos</div>
-    <button class="primary" onclick="openFixedModal()">+ Fijo</button>
-  </div>
-  <div id="fixed"></div>
-</div>
-
-<div class="card">
-  <div class="sectionHead">
-    <div class="label">Historial mensual</div>
-  </div>
-  <div id="history"></div>
-</div>
-
-<!-- ===== MODALES ===== -->
-
-<div class="modal" id="moveModal">
-  <div class="sheet">
-    <button class="close" onclick="closeModal('moveModal')">✕</button>
-    <h3>Movimiento</h3>
-
-    <label class="small">Tipo</label>
-    <select id="mType">
-      <option value="expense">Gasto</option>
-      <option value="income">Ingreso</option>
-    </select>
-
-    <label class="small">Concepto</label>
-    <input id="mConcept">
-
-    <label class="small">Importe</label>
-    <input id="mAmount" type="number" step="0.01">
-
-    <label class="small">Fecha</label>
-    <input id="mDate" type="date">
-
-    <label class="small">Forma de pago</label>
-    <select id="mMethod" onchange="toggleCardWrap()">
-      <option value="debit">Débito / Efectivo</option>
-      <option value="card">Tarjeta de crédito</option>
-    </select>
-
-    <div id="cardWrap" style="display:none">
-      <label class="small">Tarjeta</label>
-      <select id="mCard"></select>
-
-      <label class="small">Tipo</label>
-      <select id="mInstType" onchange="toggleMonths()">
-        <option value="single">Una exhibición</option>
-        <option value="months">A meses</option>
-      </select>
-
-      <div id="monthsWrap" style="display:none">
-        <label class="small">Meses</label>
-        <input id="mMonths" type="number" value="3">
-      </div>
-    </div>
-
-    <button class="primary" onclick="saveMove()">Guardar</button>
-  </div>
-</div>
-
-<div class="modal" id="cardModal">
-  <div class="sheet">
-    <button class="close" onclick="closeModal('cardModal')">✕</button>
-    <h3>Tarjeta</h3>
-    <label class="small">Nombre</label>
-    <input id="cName">
-    <label class="small">Día corte</label>
-    <input id="cCut" type="number" value="25">
-    <button class="primary" onclick="saveCard()">Guardar</button>
-  </div>
-</div>
-
-<div class="modal" id="loanModal">
-  <div class="sheet">
-    <button class="close" onclick="closeModal('loanModal')">✕</button>
-    <h3>Préstamo</h3>
-    <input id="lName" placeholder="Nombre">
-    <input id="lMonthly" type="number" placeholder="Pago mensual">
-    <button class="primary" onclick="saveLoan()">Guardar</button>
-  </div>
-</div>
-
-<div class="modal" id="fixedModal">
-  <div class="sheet">
-    <button class="close" onclick="closeModal('fixedModal')">✕</button>
-    <h3>Gasto fijo</h3>
-    <input id="fName" placeholder="Concepto">
-    <input id="fAmount" type="number" placeholder="Importe">
-    <button class="primary" onclick="saveFixed()">Guardar</button>
-  </div>
+<input id="mConcept" placeholder="Concepto">
+<input id="mAmount" type="number">
+<button onclick="saveMove()">Guardar</button>
 </div>
 
 <script>
-// ===== STATE =====
-const KEY="finanzas_v8_1";
+const KEY="finanzas_final_full";
+
 let state={
- baseSaldo:0,
- savingsLog:[],
- moves:[],
- cards:[],
- loans:[],
- fixed:[],
- installments:[]
+baseSaldo:10000,
+moves:[],
+savings:[]
 };
 
-// ===== UTILS =====
-function load(){ const raw=localStorage.getItem(KEY); if(raw) state={...state,...JSON.parse(raw)} }
-function save(){ localStorage.setItem(KEY,JSON.stringify(state)) }
-
-function periodKey(d=new Date()){
- return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0');
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function load(){
+const raw=localStorage.getItem(KEY);
+if(raw) state=JSON.parse(raw);
 }
 
-function money(n){ return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN'}) }
-function money0(n){ return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:0}) }
+function money(n){return "$"+Number(n).toFixed(2)}
 
-function signed(n, noDec=false){
- n=Number(n||0);
- if(n===0) return `<span class="moneySign amber">0</span>`;
- const s=n>0?'+':'-';
- const c=n>0?'green':'red';
- const val=noDec?money0(Math.abs(n)):money(Math.abs(n));
- return `<span class="moneySign ${c}">${s}</span> <span class="moneyText">${val}</span>`;
+function saldo(){
+let s=state.baseSaldo;
+state.moves.forEach(m=>{
+if(m.type==="expense") s-=m.amount;
+});
+return s;
 }
 
-function confirmDelete(){ return confirm("¿Eliminar registro? Esto recalculará todo."); }
-
-// ===== SALDOS =====
-function getSaldo(){
- let s=Number(state.baseSaldo||0);
- state.moves.forEach(m=>{
-  if(m.type==='income') s+=Number(m.amount||0);
-  if(m.type==='expense' && m.method!=='card') s-=Number(m.amount||0);
- });
- state.savingsLog.forEach(a=>{
-  if(a.type==='withdraw') s+=Number(a.amount||0);
- });
- return s;
+function totalSaving(){
+return state.savings.reduce((t,s)=>t+s.amount,0);
 }
 
-function totalPay(){
- let t=0;
- state.cards.forEach(c=> t+=Number(c.cutDebt||0));
- state.loans.forEach(l=> t+=Number(l.monthly||0));
- state.fixed.forEach(f=> t+=Number(f.amount||0));
- return t;
-}
-function available(){ return getSaldo()-totalPay(); }
+// ===== CONCEPTOS =====
+function applyConceptSelection(){
+const sel=document.getElementById('mConceptSelect').value;
 
-// ===== MSI =====
-function processInstallments(){
- const cur=periodKey();
- state.installments.forEach(i=>{
-  if(i.last===cur) return;
-  const card=state.cards.find(c=>c.id===i.cardId);
-  if(!card) return;
-  if(i.left>0){
-   card.openDebt = Number(card.openDebt||0) + Number(i.monthly);
-   i.left--;
-  }
-  i.last=cur;
- });
- state.installments = state.installments.filter(i=>i.left>0);
+if(sel==="otro"){
+document.getElementById('mConcept').value="";
+}else{
+document.getElementById('mConcept').value=sel;
+}
 }
 
-// ===== CORTE =====
-function processCut(){
- const today=new Date();
- state.cards.forEach(c=>{
-  if(!c.cut) return;
-  const cutDate=new Date(today.getFullYear(),today.getMonth(),c.cut);
-  if(today.getDate()<c.cut) cutDate.setMonth(cutDate.getMonth()-1);
-  const key=periodKey(cutDate);
-  if(c.last===key) return;
+// ===== AHORRO =====
+function addSaving(){
+const name=prompt("Nombre del ahorro");
+const amount=Number(prompt("Cantidad"));
 
-  c.cutDebt = Number(c.openDebt||0) + Number(c.msi||0);
-  c.openDebt=0;
-  c.msi=0;
-  c.last=key;
- });
+if(!amount) return;
+
+state.baseSaldo-=amount;
+
+let box=state.savings.find(s=>s.name===name);
+if(box){box.amount+=amount}
+else{state.savings.push({name,amount})}
+
+save();render();
 }
 
-// ===== PAGO TARJETA (CLAVE) =====
-function applyCardPayment(amount){
- let remaining = Number(amount||0);
+function withdrawSaving(){
+const name=prompt("¿De cuál ahorro?");
+const amount=Number(prompt("Cantidad"));
 
- // 1) baja cutDebt
- state.cards.forEach(c=>{
-  if(remaining<=0) return;
-  const d = Number(c.cutDebt||0);
-  const pay = Math.min(d, remaining);
-  c.cutDebt = d - pay;
-  remaining -= pay;
- });
+let box=state.savings.find(s=>s.name===name);
+if(!box || box.amount<amount) return;
 
- // 2) baja openDebt
- state.cards.forEach(c=>{
-  if(remaining<=0) return;
-  const d = Number(c.openDebt||0);
-  const pay = Math.min(d, remaining);
-  c.openDebt = d - pay;
-  remaining -= pay;
- });
+box.amount-=amount;
+state.baseSaldo+=amount;
 
- // 3) baja MSI (instalments pendientes: reduce “left” empezando por los más cercanos)
- if(remaining>0){
-  for(const inst of state.installments){
-    if(remaining<=0) break;
-    // cada “mes” equivale a monthly; reducimos meses pendientes
-    const monthVal = Number(inst.monthly||0);
-    if(monthVal<=0 || inst.left<=0) continue;
-
-    const monthsToRemove = Math.min(inst.left, Math.floor(remaining / monthVal));
-    if(monthsToRemove>0){
-      inst.left -= monthsToRemove;
-      remaining -= monthsToRemove * monthVal;
-    }
-  }
-  state.installments = state.installments.filter(i=>i.left>0);
- }
+save();render();
 }
 
-// ===== UI helpers =====
-function openModal(id){ document.getElementById(id).classList.add('show') }
-function closeModal(id){ document.getElementById(id).classList.remove('show') }
-
-function toggleCardWrap(){
- document.getElementById('cardWrap').style.display =
- document.getElementById('mMethod').value==='card'?'block':'none';
-}
-function toggleMonths(){
- document.getElementById('monthsWrap').style.display =
- document.getElementById('mInstType').value==='months'?'block':'none';
-}
-
-// ===== CRUD =====
-function openMoveModal(){
- const sel=document.getElementById('mCard');
- sel.innerHTML = state.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
- document.getElementById('mType').value='expense';
- document.getElementById('mConcept').value='';
- document.getElementById('mAmount').value='';
- document.getElementById('mDate').value=new Date().toISOString().slice(0,10);
- document.getElementById('mMethod').value='debit';
- document.getElementById('mInstType').value='single';
- document.getElementById('mMonths').value=3;
- toggleCardWrap(); toggleMonths();
- openModal('moveModal');
+// ===== MOVES =====
+function openMove(){
+document.getElementById("modal").style.display="block";
 }
 
 function saveMove(){
- const type=document.getElementById('mType').value;
- const concept=(document.getElementById('mConcept').value||'Movimiento').trim();
- const amount=Number(document.getElementById('mAmount').value||0);
- const date=document.getElementById('mDate').value || new Date().toISOString().slice(0,10);
- const method=document.getElementById('mMethod').value;
+const concept=document.getElementById("mConcept").value;
+const amount=Number(document.getElementById("mAmount").value);
 
- if(!amount){ alert('Ingresa importe'); return; }
+state.moves.push({id:Date.now(),concept,amount,type:"expense"});
 
- let cardId=null;
-
- if(type==='expense' && method==='card'){
-   cardId=Number(document.getElementById('mCard').value||0);
-   const card=state.cards.find(c=>c.id===cardId);
-
-   if(card){
-     const instType=document.getElementById('mInstType').value;
-     if(instType==='months'){
-       const months=Number(document.getElementById('mMonths').value||1);
-       const monthly=amount/months;
-
-       state.installments.push({
-         id:Date.now(),
-         cardId,
-         monthly,
-         left:months,
-         last:null
-       });
-     }else{
-       card.openDebt = Number(card.openDebt||0) + amount;
-     }
-   }
- }
-
- // pago de tarjeta (gasto manual)
- const isCardPayment = type==='expense' && (
-   concept.toLowerCase().includes('tarjeta')
- );
-
- if(isCardPayment){
-   applyCardPayment(amount);
- }
-
- state.moves.unshift({id:Date.now(),type,concept,amount,date,method,cardId});
- save(); closeModal('moveModal'); render();
-}
-
-function editMove(id){
- const m=state.moves.find(x=>x.id===id);
- const val=prompt("Nuevo importe",m.amount);
- if(val!==null){
-   m.amount=Number(val);
-   // si era pago de tarjeta, re-aplicar lógica (simple: recalcular todo)
-   render();
- }
-}
-function deleteMove(id){
- if(!confirmDelete()) return;
- state.moves = state.moves.filter(m=>m.id!==id);
- save(); render();
-}
-
-function openCardModal(){
- document.getElementById('cName').value='';
- document.getElementById('cCut').value=25;
- openModal('cardModal');
-}
-function saveCard(){
- const name=document.getElementById('cName').value||'Tarjeta';
- const cut=Number(document.getElementById('cCut').value||25);
- state.cards.push({id:Date.now(),name,cut,openDebt:0,cutDebt:0,msi:0});
- save(); closeModal('cardModal'); render();
-}
-function editCard(id){
- const c=state.cards.find(x=>x.id===id);
- const val=prompt("Nuevo nombre",c.name);
- if(val!==null){ c.name=val; save(); render(); }
-}
-function deleteCard(id){
- if(!confirmDelete()) return;
- state.cards = state.cards.filter(c=>c.id!==id);
- save(); render();
-}
-
-function openLoanModal(){ document.getElementById('lName').value=''; document.getElementById('lMonthly').value=''; openModal('loanModal'); }
-function saveLoan(){
- const name=document.getElementById('lName').value||'Préstamo';
- const monthly=Number(document.getElementById('lMonthly').value||0);
- state.loans.push({id:Date.now(),name,monthly});
- save(); closeModal('loanModal'); render();
-}
-function editLoan(id){
- const l=state.loans.find(x=>x.id===id);
- const val=prompt("Nuevo pago mensual",l.monthly);
- if(val!==null){ l.monthly=Number(val); save(); render(); }
-}
-function deleteLoan(id){
- if(!confirmDelete()) return;
- state.loans = state.loans.filter(l=>l.id!==id);
- save(); render();
-}
-
-function openFixedModal(){ document.getElementById('fName').value=''; document.getElementById('fAmount').value=''; openModal('fixedModal'); }
-function saveFixed(){
- const name=document.getElementById('fName').value||'Fijo';
- const amount=Number(document.getElementById('fAmount').value||0);
- state.fixed.push({id:Date.now(),name,amount});
- save(); closeModal('fixedModal'); render();
-}
-function editFixed(id){
- const f=state.fixed.find(x=>x.id===id);
- const val=prompt("Nuevo importe",f.amount);
- if(val!==null){ f.amount=Number(val); save(); render(); }
-}
-function deleteFixed(id){
- if(!confirmDelete()) return;
- state.fixed = state.fixed.filter(f=>f.id!==id);
- save(); render();
-}
-
-// ===== HISTORIAL =====
-function historyHTML(){
- let map={};
- state.moves.forEach(m=>{
-  if(m.type!=='expense') return;
-  const p = periodKey(new Date(m.date));
-  map[p] = (map[p]||0) + Number(m.amount||0);
- });
- const keys = Object.keys(map).sort();
- return keys.map((k,i)=>{
-   const prev = map[keys[i-1]]||0;
-   const diff = map[k]-prev;
-   return `<div class="row">
-     <div class="rowTitle">${k}</div>
-     <div>${money(map[k])}</div>
-     <div class="${diff>=0?'red':'green'}">${diff>=0?'↑':'↓'} ${money(Math.abs(diff))}</div>
-   </div>`;
- }).join('') || `<div class="small">Sin datos</div>`;
+save();render();
 }
 
 // ===== RENDER =====
 function render(){
- processInstallments();
- processCut();
 
- const s=getSaldo();
- const p=totalPay();
- const d=available();
+document.getElementById("month").innerText=new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'});
+document.getElementById("greeting").innerText="Hola Karen 👋";
 
- document.getElementById('month').innerText =
-   new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'});
+document.getElementById("saldo").innerHTML=money(saldo());
+document.getElementById("savingTotal").innerHTML=money(totalSaving());
 
- document.getElementById('greeting').innerText = "Hola Karen 👋";
+document.getElementById("moves").innerHTML=
+state.moves.map(m=>`
+<div class="row">
+<div>${m.concept}</div>
+<div>${money(m.amount)}</div>
+</div>
+`).join("");
 
- document.getElementById('saldo').innerHTML = signed(s);
- document.getElementById('pagar').innerHTML = signed(p,true);
- document.getElementById('disp').innerHTML = signed(d,true);
+document.getElementById("savingList").innerHTML=
+state.savings.map(s=>`
+<div class="row">
+<div>${s.name}</div>
+<div>${money(s.amount)}</div>
+</div>
+`).join("");
 
- document.getElementById('moves').innerHTML =
- state.moves.map(m=>`
-  <div class="row">
-    <div>
-      <div class="rowTitle">${m.concept}</div>
-      <div class="rowSub">${m.date}</div>
-    </div>
-    <div>
-      ${signed(m.type==='income'?m.amount:-m.amount)}
-      <button onclick="editMove(${m.id})">✏️</button>
-      <button class="danger" onclick="deleteMove(${m.id})">🗑</button>
-    </div>
-  </div>
- `).join('') || `<div class="small">Sin movimientos</div>`;
-
- document.getElementById('cards').innerHTML =
- state.cards.map(c=>`
-  <div class="row">
-    <div>
-      <div class="rowTitle">${c.name}</div>
-      <div class="rowSub">Corte ${c.cut} · Ya cortado: ${money(c.cutDebt||0)} · En curso: ${money(c.openDebt||0)}</div>
-    </div>
-    <div>
-      <button onclick="editCard(${c.id})">✏️</button>
-      <button class="danger" onclick="deleteCard(${c.id})">🗑</button>
-    </div>
-  </div>
- `).join('') || `<div class="small">Sin tarjetas</div>`;
-
- document.getElementById('loans').innerHTML =
- state.loans.map(l=>`
-  <div class="row">
-    <div class="rowTitle">${l.name}</div>
-    <div>
-      ${money(l.monthly)}
-      <button onclick="editLoan(${l.id})">✏️</button>
-      <button class="danger" onclick="deleteLoan(${l.id})">🗑</button>
-    </div>
-  </div>
- `).join('') || `<div class="small">Sin préstamos</div>`;
-
- document.getElementById('fixed').innerHTML =
- state.fixed.map(f=>`
-  <div class="row">
-    <div class="rowTitle">${f.name}</div>
-    <div>
-      ${money(f.amount)}
-      <button onclick="editFixed(${f.id})">✏️</button>
-      <button class="danger" onclick="deleteFixed(${f.id})">🗑</button>
-    </div>
-  </div>
- `).join('') || `<div class="small">Sin gastos fijos</div>`;
-
- document.getElementById('history').innerHTML = historyHTML();
-
- save();
+save();
 }
 
-// ===== INIT =====
 load();
 render();
 </script>
