@@ -7,63 +7,64 @@
 
 <style>
 :root{
- --bg:#0b0f14; --card:#121821; --text:#eef2f7; --muted:#94a3b8;
- --green:#22c55e; --red:#ef4444; --amber:#f59e0b; --purple:#8b5cf6;
+ --bg:#070b10;
+ --card:#121922;
+ --text:#f7f8fb;
+ --muted:#8d99aa;
+ --purple:#8b5cf6;
+ --purpleDark:#5b21b6;
+ --green:#22c55e;
+ --red:#ef4444;
 }
-*{box-sizing:border-box}
+
 body{
- background:linear-gradient(180deg,#0b0f14,#0e1420);
+ background:linear-gradient(180deg,#070b10,#0b1017);
  color:var(--text);
  font-family:sans-serif;
- max-width:430px;margin:auto;padding:18px;
+ max-width:430px;
+ margin:auto;
+ padding:18px;
 }
-.header{text-align:center;margin-bottom:16px}
-.header h1{margin:0;font-size:24px;font-weight:900}
-.header p{margin:6px 0 0;color:var(--muted)}
 
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{background:#121821;padding:14px;border-radius:18px;margin-bottom:10px}
-.hero{grid-column:span 2}
-.redbg{background:#2a0f12}
-.greenbg{background:#0f2a1c}
+.card{
+ background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));
+ border-radius:18px;
+ padding:14px;
+ margin-bottom:12px;
+}
 
-.label{font-size:11px;color:#cbd5e1}
-.big{font-size:28px;font-weight:900;margin-top:6px}
-
-.row{display:flex;justify-content:space-between;margin:8px 0}
+.big{font-size:28px;font-weight:900}
 
 button{
- background:#1f2937;color:white;border:none;padding:6px 10px;border-radius:8px
+ background:linear-gradient(135deg,var(--purple),var(--purpleDark));
+ border:none;
+ padding:8px;
+ border-radius:10px;
+ color:white;
+ margin-top:6px;
 }
 
-.green{color:var(--green)}
-.red{color:var(--red)}
-.amber{color:var(--amber)}
+.row{display:flex;justify-content:space-between;margin:6px 0}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h1 id="greeting"></h1>
-<p id="month"></p>
-</div>
+<h2 id="month"></h2>
 
-<div class="grid">
-<div class="card hero">
-<div class="label">Saldo</div>
+<div class="card">
+<div>Saldo</div>
 <div class="big" id="saldo"></div>
 </div>
 
-<div class="card redbg">
-<div class="label">A pagar</div>
+<div class="card">
+<div>A pagar</div>
 <div class="big" id="pagar"></div>
 </div>
 
-<div class="card greenbg">
-<div class="label">Disponible</div>
+<div class="card">
+<div>Disponible</div>
 <div class="big" id="disp"></div>
-</div>
 </div>
 
 <div class="card">
@@ -75,13 +76,19 @@ button{
 </div>
 
 <div class="card">
+<h3>Tarjetas</h3>
+<div id="cards"></div>
+<button onclick="addCard()">+ Tarjeta</button>
+</div>
+
+<div class="card">
 <h3>Movimientos</h3>
-<button onclick="openMove()">+ Nuevo</button>
+<button onclick="openModal()">+ Nuevo</button>
 <div id="moves"></div>
 </div>
 
-<!-- MODAL -->
 <div id="modal" style="display:none">
+
 <select id="mConceptSelect" onchange="applyConceptSelection()">
 <option value="">Selecciona</option>
 <option>Uber/Transporte</option>
@@ -100,118 +107,155 @@ button{
 
 <input id="mConcept" placeholder="Concepto">
 <input id="mAmount" type="number">
+
+<select id="mMethod">
+<option value="cash">Débito/Efectivo</option>
+<option value="card">Tarjeta</option>
+</select>
+
+<select id="mCard"></select>
+
 <button onclick="saveMove()">Guardar</button>
+
 </div>
 
 <script>
-const KEY="finanzas_final_full";
+const KEY="finanzas_estable";
 
 let state={
-baseSaldo:10000,
-moves:[],
-savings:[]
+ baseSaldo:10000,
+ moves:[],
+ savings:[],
+ cards:[]
 };
 
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function load(){
-const raw=localStorage.getItem(KEY);
-if(raw) state=JSON.parse(raw);
-}
+function load(){let r=localStorage.getItem(KEY); if(r) state=JSON.parse(r)}
 
 function money(n){return "$"+Number(n).toFixed(2)}
 
-function saldo(){
-let s=state.baseSaldo;
-state.moves.forEach(m=>{
-if(m.type==="expense") s-=m.amount;
-});
-return s;
-}
-
-function totalSaving(){
-return state.savings.reduce((t,s)=>t+s.amount,0);
-}
-
-// ===== CONCEPTOS =====
 function applyConceptSelection(){
-const sel=document.getElementById('mConceptSelect').value;
-
-if(sel==="otro"){
-document.getElementById('mConcept').value="";
-}else{
-document.getElementById('mConcept').value=sel;
-}
+ let sel=document.getElementById("mConceptSelect").value;
+ if(sel==="otro") document.getElementById("mConcept").value="";
+ else document.getElementById("mConcept").value=sel;
 }
 
-// ===== AHORRO =====
+/* AHORRO */
+function totalSaving(){return state.savings.reduce((t,s)=>t+s.amount,0)}
+
 function addSaving(){
-const name=prompt("Nombre del ahorro");
-const amount=Number(prompt("Cantidad"));
-
-if(!amount) return;
-
-state.baseSaldo-=amount;
-
-let box=state.savings.find(s=>s.name===name);
-if(box){box.amount+=amount}
-else{state.savings.push({name,amount})}
-
-save();render();
+ let name=prompt("Nombre ahorro");
+ let amount=Number(prompt("Cantidad"));
+ if(!amount) return;
+ state.baseSaldo-=amount;
+ let box=state.savings.find(s=>s.name===name);
+ if(box) box.amount+=amount;
+ else state.savings.push({name,amount});
+ save();render();
 }
 
 function withdrawSaving(){
-const name=prompt("¿De cuál ahorro?");
-const amount=Number(prompt("Cantidad"));
-
-let box=state.savings.find(s=>s.name===name);
-if(!box || box.amount<amount) return;
-
-box.amount-=amount;
-state.baseSaldo+=amount;
-
-save();render();
+ let name=prompt("¿De cuál?");
+ let amount=Number(prompt("Cantidad"));
+ let box=state.savings.find(s=>s.name===name);
+ if(!box||box.amount<amount)return;
+ box.amount-=amount;
+ state.baseSaldo+=amount;
+ save();render();
 }
 
-// ===== MOVES =====
-function openMove(){
-document.getElementById("modal").style.display="block";
+/* TARJETAS */
+function addCard(){
+ let name=prompt("Nombre tarjeta");
+ let cut=Number(prompt("Día corte"))||25;
+ state.cards.push({id:Date.now(),name,cut,openDebt:0,cutDebt:0,lastCut:null});
+ save();render();
+}
+
+function processCut(){
+ let today=new Date();
+ state.cards.forEach(c=>{
+  let cutDate=new Date(today.getFullYear(),today.getMonth(),c.cut);
+  if(today.getDate()<c.cut) cutDate.setMonth(cutDate.getMonth()-1);
+  let key=cutDate.toISOString().slice(0,7);
+  if(c.lastCut===key) return;
+  c.cutDebt+=c.openDebt;
+  c.openDebt=0;
+  c.lastCut=key;
+ });
+}
+
+function applyCardPayment(amount){
+ let remaining=amount;
+ state.cards.forEach(c=>{
+  let pay=Math.min(c.cutDebt,remaining);
+  c.cutDebt-=pay;
+  remaining-=pay;
+ });
+ state.cards.forEach(c=>{
+  let pay=Math.min(c.openDebt,remaining);
+  c.openDebt-=pay;
+  remaining-=pay;
+ });
+}
+
+/* MOVES */
+function openModal(){
+ document.getElementById("modal").style.display="block";
+ document.getElementById("mCard").innerHTML=
+ state.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
 }
 
 function saveMove(){
-const concept=document.getElementById("mConcept").value;
-const amount=Number(document.getElementById("mAmount").value);
+ let concept=document.getElementById("mConcept").value;
+ let amount=Number(document.getElementById("mAmount").value);
+ let method=document.getElementById("mMethod").value;
+ let cardId=Number(document.getElementById("mCard").value);
 
-state.moves.push({id:Date.now(),concept,amount,type:"expense"});
+ if(!amount) return;
 
-save();render();
+ if(method==="card"){
+  let card=state.cards.find(c=>c.id===cardId);
+  if(card) card.openDebt+=amount;
+ }else{
+  state.baseSaldo-=amount;
+ }
+
+ if(concept.toLowerCase().includes("tarjeta")){
+  applyCardPayment(amount);
+ }
+
+ state.moves.push({concept,amount});
+
+ save();render();
 }
 
-// ===== RENDER =====
+/* CALCULOS */
+function totalPay(){return state.cards.reduce((t,c)=>t+c.cutDebt,0)}
+function available(){return state.baseSaldo-totalPay()}
+
+/* RENDER */
 function render(){
 
-document.getElementById("month").innerText=new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'});
-document.getElementById("greeting").innerText="Hola Karen 👋";
+ processCut();
 
-document.getElementById("saldo").innerHTML=money(saldo());
-document.getElementById("savingTotal").innerHTML=money(totalSaving());
+ document.getElementById("month").innerText=
+ new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'});
 
-document.getElementById("moves").innerHTML=
-state.moves.map(m=>`
-<div class="row">
-<div>${m.concept}</div>
-<div>${money(m.amount)}</div>
-</div>
-`).join("");
+ document.getElementById("saldo").innerText=money(state.baseSaldo);
+ document.getElementById("pagar").innerText=money(totalPay());
+ document.getElementById("disp").innerText=money(available());
 
-document.getElementById("savingList").innerHTML=
-state.savings.map(s=>`
-<div class="row">
-<div>${s.name}</div>
-<div>${money(s.amount)}</div>
-</div>
-`).join("");
+ document.getElementById("savingTotal").innerText=money(totalSaving());
 
-save();
+ document.getElementById("savingList").innerHTML=
+ state.savings.map(s=>`<div class="row"><div>${s.name}</div><div>${money(s.amount)}</div></div>`).join("");
+
+ document.getElementById("cards").innerHTML=
+ state.cards.map(c=>`<div class="row"><div>${c.name}</div><div>${money(c.cutDebt)}</div></div>`).join("");
+
+ document.getElementById("moves").innerHTML=
+ state.moves.map(m=>`<div class="row"><div>${m.concept}</div><div>${money(m.amount)}</div></div>`).join("");
 }
 
 load();
