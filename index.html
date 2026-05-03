@@ -3,15 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Finanzas v1.2</title>
+<title>Finanzas</title>
+
 <style>
-body{background:#070b10;color:#fff;font-family:sans-serif;max-width:430px;margin:auto;padding:16px}
-.card{background:#121922;border-radius:16px;padding:12px;margin-bottom:10px}
-.big{font-size:28px;font-weight:bold}
-button{background:#8b5cf6;color:#fff;border:none;padding:8px;border-radius:8px;margin-top:6px}
-.row{display:flex;justify-content:space-between;margin:4px 0}
-input,select{width:100%;margin:4px 0;padding:8px;border-radius:8px;border:none;background:#0f1622;color:#fff}
-.modal{position:fixed;bottom:0;left:0;right:0;background:#0b1119;padding:12px;display:none}
+body{
+ background:linear-gradient(180deg,#070b10,#0b1017);
+ color:white;
+ font-family:sans-serif;
+ max-width:420px;
+ margin:auto;
+ padding:16px;
+}
+
+.card{
+ background:rgba(255,255,255,0.05);
+ border-radius:16px;
+ padding:14px;
+ margin-bottom:12px;
+}
+
+.big{font-size:30px;font-weight:bold}
+
+button{
+ background:linear-gradient(135deg,#8b5cf6,#5b21b6);
+ border:none;
+ color:white;
+ padding:10px;
+ border-radius:10px;
+ margin-top:6px;
+ width:100%;
+}
+
+.row{
+ display:flex;
+ justify-content:space-between;
+ margin:6px 0;
+}
+
+.modal{
+ position:fixed;
+ top:0;
+ left:0;
+ right:0;
+ bottom:0;
+ background:rgba(0,0,0,0.9);
+ display:none;
+ flex-direction:column;
+ padding:20px;
+}
+
+.modalContent{
+ background:#0f1622;
+ padding:16px;
+ border-radius:16px;
+}
+
+input,select{
+ width:100%;
+ margin:6px 0;
+ padding:10px;
+ border-radius:10px;
+ border:none;
+ background:#0f1622;
+ color:white;
+}
+
+.close{
+ text-align:right;
+ font-size:20px;
+ cursor:pointer;
+}
 </style>
 </head>
 
@@ -34,14 +95,7 @@ input,select{width:100%;margin:4px 0;padding:8px;border-radius:8px;border:none;b
 <div class="card">
 <div>Tarjeta</div>
 <div id="cardInfo"></div>
-<button onclick="configCard()">Configurar</button>
-</div>
-
-<div class="card">
-<div>Ahorro</div>
-<div id="saving"></div>
-<button onclick="addSaving()">Guardar</button>
-<button onclick="withdrawSaving()">Retirar</button>
+<button onclick="configCard()">Configurar tarjeta</button>
 </div>
 
 <div class="card">
@@ -51,64 +105,24 @@ input,select{width:100%;margin:4px 0;padding:8px;border-radius:8px;border:none;b
 
 <button onclick="openModal('expense')">+ Gasto</button>
 
-<div class="modal" id="modal"></div>
-
-<div class="modal" id="detailModal">
-<h3>Detalle mes</h3>
-<div id="detail"></div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modalContent">
+<div class="close" onclick="closeModal()">✕</div>
+<div id="modalBody"></div>
+</div>
 </div>
 
 <script>
 
-const KEY="finanzas_v12";
-
 let state={
  saldo:0,
  moves:[],
- savings:[],
- cards:[{name:"BBVA",limit:30000,openDebt:0,cutDebt:0,cutDay:25,lastCut:null}],
- msi:[],
- fixed:[],
- currentMonth:null
+ cards:[{name:"BBVA",limit:30000,openDebt:0,cutDebt:0}]
 };
 
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function load(){let r=localStorage.getItem(KEY); if(r)state=JSON.parse(r)}
-
-function money(n){return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})}
-
-function monthKey(){
- let d=new Date();
- return d.getFullYear()+"-"+(d.getMonth()+1);
-}
-
-function processMonth(){
- let mk=monthKey();
- if(state.currentMonth===mk)return;
- state.currentMonth=mk;
-
- // corte
- let c=state.cards[0];
- c.cutDebt+=c.openDebt;
- c.openDebt=0;
-
- // MSI
- state.msi.forEach(m=>{
-  if(m.remaining>0 && m.last!==mk){
-   c.cutDebt+=m.monthly;
-   m.remaining--;
-   m.last=mk;
-  }
- });
-
- save();
-}
-
-function totalPay(){
- let c=state.cards[0];
- let fixed=state.fixed.filter(f=>f.status==="pending")
- .reduce((t,f)=>t+f.amount,0);
- return c.cutDebt+fixed;
+function money(n){
+ return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})
 }
 
 function openModal(type){
@@ -124,7 +138,7 @@ function openModal(type){
  <option>Impuestos</option>
  <option>PTU</option>
  <option>Reembolso</option>
- <option value="otro">Otro</option>
+ <option>Otro</option>
  </select>
  <input id="concept" placeholder="Concepto">
  <input id="amount" type="number" placeholder="Importe">
@@ -152,23 +166,31 @@ function openModal(type){
  `;
  }
 
- modal.innerHTML=html;
- modal.style.display="block";
+ modalBody.innerHTML=html;
+ modal.style.display="flex";
+}
+
+function closeModal(){
+ modal.style.display="none";
 }
 
 function saveIncome(){
- let concept=concept.value||cat.value;
- let amount=Number(amount.value);
+ let concept=document.getElementById("concept").value||document.getElementById("cat").value;
+ let amount=Number(document.getElementById("amount").value);
+
  if(!amount)return;
+
  state.saldo+=amount;
- state.moves.unshift({id:Date.now(),concept,amount,type:"income"});
- save();render();
+ state.moves.unshift({concept,amount});
+ closeModal();
+ render();
 }
 
 function saveExpense(){
- let concept=concept.value||cat.value;
- let amount=Number(amount.value);
+ let concept=document.getElementById("concept").value||document.getElementById("cat").value;
+ let amount=Number(document.getElementById("amount").value);
  let method=document.getElementById("method").value;
+
  if(!amount)return;
 
  if(method==="cash"){
@@ -177,69 +199,48 @@ function saveExpense(){
   state.cards[0].openDebt+=amount;
  }
 
- state.moves.unshift({id:Date.now(),concept,amount,type:"expense"});
- save();render();
+ state.moves.unshift({concept,amount});
+ closeModal();
+ render();
 }
 
 function configCard(){
- let name=prompt("Nombre");
- let limit=Number(prompt("Línea"));
- let cut=Number(prompt("Día corte"));
- state.cards[0]={name,limit,openDebt:0,cutDebt:0,cutDay:cut};
- save();render();
-}
+ let name=prompt("Nombre tarjeta");
+ let limit=Number(prompt("Línea crédito"));
 
-function addSaving(){
- let a=Number(prompt("Cantidad"));
- if(!a)return;
- state.saldo-=a;
- state.savings.push({amount:a});
- save();render();
-}
-
-function withdrawSaving(){
- let a=Number(prompt("Cantidad"));
- if(!a)return;
- state.saldo+=a;
- state.savings.push({amount:-a});
- save();render();
-}
-
-function openDetail(){
- let c=state.cards[0];
- detail.innerHTML=`Tarjeta: ${money(c.cutDebt)}`;
- detailModal.style.display="block";
+ state.cards[0]={name,limit,openDebt:0,cutDebt:0};
+ render();
 }
 
 function render(){
-
- processMonth();
 
  let c=state.cards[0];
  let used=c.openDebt+c.cutDebt;
  let avail=c.limit-used;
 
- month.innerText=new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
- saldo.innerText=money(state.saldo);
- pagar.innerText=money(totalPay());
+ document.getElementById("month").innerText=
+ new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
 
- cardInfo.innerHTML=`
+ document.getElementById("saldo").innerText=money(state.saldo);
+
+ document.getElementById("pagar").innerText=money(c.cutDebt);
+
+ document.getElementById("cardInfo").innerHTML=`
  <div class="row"><div>Usado</div><div>${money(used)}</div></div>
  <div class="row"><div>Disponible</div><div>${money(avail)}</div></div>
  `;
 
- saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
-
- moves.innerHTML=state.moves.map(m=>`
+ document.getElementById("moves").innerHTML=
+ state.moves.map(m=>`
  <div class="row">
  <div>${m.concept}</div>
  <div>${money(m.amount)}</div>
  </div>`).join("");
 }
 
-load();
 render();
 
 </script>
+
 </body>
 </html>
