@@ -6,76 +6,83 @@
 <title>Finanzas</title>
 
 <style>
-body{
- background:#070b10;
- color:white;
- font-family:sans-serif;
- max-width:430px;
- margin:auto;
- padding:16px;
+:root{
+ --bg:#070b10;
+ --card:#111827;
+ --accent:#8b5cf6;
+ --text:#fff;
+ --muted:#9ca3af;
 }
 
-/* GRID */
+body{
+ margin:0;
+ background:var(--bg);
+ color:var(--text);
+ font-family:-apple-system,sans-serif;
+}
+
+.header{
+ padding:20px;
+}
+
+.saldo{
+ font-size:32px;
+ font-weight:700;
+}
+
 .grid{
  display:grid;
  grid-template-columns:1fr 1fr;
- gap:10px;
+ gap:12px;
+ padding:0 16px;
 }
 
 .card{
- background:linear-gradient(135deg,#1a2230,#0f1622);
+ background:var(--card);
  border-radius:16px;
- padding:12px;
+ padding:14px;
 }
 
-.big{font-size:22px;font-weight:bold}
-
-button{
- background:linear-gradient(135deg,#8b5cf6,#5b21b6);
- border:none;
- color:white;
- padding:10px;
- border-radius:10px;
- width:100%;
- margin-top:6px;
+.value{
+ font-size:18px;
+ margin-top:4px;
 }
 
-.row{
+.section{
+ padding:16px;
+}
+
+.mov{
  display:flex;
  justify-content:space-between;
- margin:6px 0;
+ margin:8px 0;
 }
 
-/* FAB */
 .fab{
  position:fixed;
  bottom:20px;
- right:20px;
- width:60px;
- height:60px;
+ left:50%;
+ transform:translateX(-50%);
+ width:65px;
+ height:65px;
  border-radius:50%;
- background:#8b5cf6;
+ background:var(--accent);
  display:flex;
  align-items:center;
  justify-content:center;
  font-size:28px;
 }
 
-/* MODAL */
 .modal{
  position:fixed;
- inset:0;
- background:rgba(0,0,0,.8);
+ bottom:0;
+ left:0;
+ right:0;
+ background:#0f172a;
+ border-top-left-radius:20px;
+ border-top-right-radius:20px;
+ padding:20px;
  display:none;
- align-items:center;
- justify-content:center;
-}
-
-.box{
- background:#0f1622;
- padding:16px;
- border-radius:16px;
- width:90%;
 }
 
 input,select{
@@ -84,41 +91,56 @@ input,select{
  padding:10px;
  border-radius:10px;
  border:none;
- background:#1a2230;
+ background:#1f2937;
  color:white;
+}
+
+button{
+ width:100%;
+ padding:12px;
+ border:none;
+ border-radius:10px;
+ background:var(--accent);
+ color:white;
+ margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h3 id="month"></h3>
+<div class="header">
+<div>Disponible</div>
+<div class="saldo" id="saldo"></div>
+</div>
 
 <div class="grid">
 
 <div class="card">
-<div>Disponible</div>
-<div class="big" id="saldo"></div>
-</div>
-
-<div class="card">
 <div>A pagar</div>
-<div class="big" id="pagar"></div>
+<div class="value" id="pagar"></div>
 </div>
 
 <div class="card">
 <div>Tarjeta</div>
-<div id="cardInfo"></div>
+<div class="value" id="card"></div>
 </div>
 
 <div class="card">
 <div>Ahorro</div>
-<div id="saving"></div>
-</div>
-
+<div class="value" id="saving"></div>
 </div>
 
 <div class="card">
+<div>Mes</div>
+<div class="value" id="month"></div>
+</div>
+
+</div>
+
+<div class="section">
+<div id="salaryPending"></div>
+
 <div>Movimientos</div>
 <div id="moves"></div>
 </div>
@@ -126,11 +148,10 @@ input,select{
 <div class="fab" onclick="openModal()">+</div>
 
 <div class="modal" id="modal">
-<div class="box">
-<h3>Movimiento</h3>
 
 <select id="type">
-<option value="income">Ingreso</option>
+<option value="main">Ingreso Principal</option>
+<option value="extra">Ingreso adicional</option>
 <option value="expense">Gasto</option>
 </select>
 
@@ -138,12 +159,14 @@ input,select{
 <input id="amount" type="number" placeholder="Importe">
 
 <select id="method">
-<option value="cash">Efectivo</option>
-<option value="card">Tarjeta</option>
+<option>Efectivo</option>
+<option>Débito</option>
+<option>Tarjeta de crédito</option>
+<option>Otro</option>
 </select>
 
 <button onclick="save()">Guardar</button>
-</div>
+
 </div>
 
 <script>
@@ -154,11 +177,9 @@ let state={
  savings:[],
  card:{limit:30000,openDebt:0,cutDebt:0},
 
- // NUEVO
  salary:{
-  amount:10000,
   days:[15,30],
-  lastApplied:[]
+  pending:[]
  }
 };
 
@@ -166,53 +187,55 @@ function money(n){
  return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})
 }
 
-/* INGRESO QUINCENAL */
+/* SUELDO PENDIENTE */
 function processSalary(){
 
- let today=new Date();
- let day=today.getDate();
+ let d=new Date();
+ let today=d.getDate();
+ let key=d.getFullYear()+"-"+d.getMonth()+"-"+today;
 
- state.salary.days.forEach(d=>{
+ if(state.salary.days.includes(today)){
 
-  let key=today.getFullYear()+"-"+today.getMonth()+"-"+d;
-
-  if(day===d && !state.salary.lastApplied.includes(key)){
-
-    state.saldo+=state.salary.amount;
-
-    state.moves.unshift({
-      concept:"Sueldo",
-      amount:state.salary.amount
-    });
-
-    state.salary.lastApplied.push(key);
+  if(!state.salary.pending.includes(key)){
+    state.salary.pending.push(key);
   }
 
- });
+ }
 
 }
 
 /* MODAL */
-function openModal(){modal.style.display="flex"}
+function openModal(){modal.style.display="block"}
+
 function save(){
 
- let type=document.getElementById("type").value;
- let concept=document.getElementById("concept").value;
- let amount=Number(document.getElementById("amount").value);
- let method=document.getElementById("method").value;
+ let type=typeSelect.value;
+ let amount=Number(amountInput.value);
+ let concept=conceptInput.value;
 
- if(type==="income"){
+ if(type==="main"){
   state.saldo+=amount;
+  state.moves.unshift({concept:"Ingreso Principal",amount});
+
+  // eliminar pendiente
+  state.salary.pending.pop();
+ }
+
+ if(type==="extra"){
+  state.saldo+=amount;
+  state.moves.unshift({concept,amount});
  }
 
  if(type==="expense"){
-  if(method==="cash") state.saldo-=amount;
-  else state.card.openDebt+=amount;
+  if(methodSelect.value==="Tarjeta de crédito"){
+    state.card.openDebt+=amount;
+  }else{
+    state.saldo-=amount;
+  }
+  state.moves.unshift({concept,amount});
  }
 
- state.moves.unshift({concept,amount});
  modal.style.display="none";
-
  render();
 }
 
@@ -221,27 +244,32 @@ function render(){
 
  processSalary();
 
- saldo.innerText=money(state.saldo);
- pagar.innerText=money(state.card.cutDebt);
-
  let used=state.card.openDebt+state.card.cutDebt;
  let avail=state.card.limit-used;
 
- cardInfo.innerHTML=`
- <div class="row"><div>Usado</div><div>${money(used)}</div></div>
- <div class="row"><div>Disponible</div><div>${money(avail)}</div></div>
- `;
-
+ saldo.innerText=money(state.saldo);
+ pagar.innerText=money(state.card.cutDebt);
+ card.innerText=money(avail);
  saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
 
+ month.innerText=new Date().toLocaleDateString("es-MX",{month:"short"});
+
+ salaryPending.innerHTML=state.salary.pending.length ?
+ "💰 Ingreso Principal pendiente" : "";
+
  moves.innerHTML=state.moves.map(m=>`
- <div class="row">
+ <div class="mov">
  <div>${m.concept}</div>
  <div>${money(m.amount)}</div>
  </div>`).join("");
 
- month.innerText=new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
 }
+
+/* INIT */
+const typeSelect=document.getElementById("type");
+const amountInput=document.getElementById("amount");
+const conceptInput=document.getElementById("concept");
+const methodSelect=document.getElementById("method");
 
 render();
 
