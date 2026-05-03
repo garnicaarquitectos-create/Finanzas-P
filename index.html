@@ -3,313 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Finanzas v1.4</title>
+<title>Finanzas</title>
 
 <style>
-:root{
- --bg:#070b10; --bg2:#0b1017;
- --card:#121922; --muted:#8d99aa;
- --purple:#8b5cf6; --purple2:#5b21b6;
-}
-*{box-sizing:border-box}
 body{
- background:linear-gradient(180deg,var(--bg),var(--bg2));
- color:#fff; font-family:sans-serif;
- max-width:420px; margin:auto; padding:0 14px 20px;
-}
-header{
- position:sticky; top:0; z-index:5;
- display:flex; align-items:center; gap:8px;
- background:linear-gradient(180deg,var(--bg),rgba(7,11,16,.8));
- padding:10px 0; backdrop-filter: blur(6px);
-}
-header .back{font-size:18px; cursor:pointer; opacity:.8}
-h3{margin:0; font-weight:600}
-
-.card{
- background:rgba(255,255,255,.05);
- border-radius:16px; padding:14px; margin:12px 0;
-}
-.big{font-size:30px; font-weight:700}
-
-button{
- background:linear-gradient(135deg,var(--purple),var(--purple2));
- border:none; color:white; padding:10px;
- border-radius:10px; width:100%; margin-top:8px;
-}
-.row{display:flex; justify-content:space-between; margin:6px 0}
-
-.section-head{
- display:flex; justify-content:space-between; align-items:center;
- cursor:pointer; opacity:.9;
-}
-.chev{transform:rotate(0deg); transition:.2s}
-.chev.open{transform:rotate(90deg)}
-
-input,select{
- width:100%; margin:6px 0; padding:10px;
- border-radius:10px; border:none; background:#0f1622; color:#fff;
-}
-
-.modal{
- position:fixed; inset:0; display:none;
- align-items:flex-end; justify-content:center;
-}
-.backdrop{
- position:absolute; inset:0; background:rgba(0,0,0,.6);
-}
-.sheet{
- position:relative; width:100%; max-width:420px;
- background:#0b1119; border-top-left-radius:16px; border-top-right-radius:16px;
+ background:#070b10;
+ color:white;
+ font-family:sans-serif;
+ max-width:430px;
+ margin:auto;
  padding:16px;
 }
-.close{position:absolute; right:14px; top:10px; cursor:pointer}
 
-.edit{
- background:#0f1622; padding:8px; border-radius:10px; margin-top:6px;
+/* GRID */
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
 }
-.small{color:var(--muted); font-size:12px}
+
+.card{
+ background:linear-gradient(135deg,#1a2230,#0f1622);
+ border-radius:16px;
+ padding:12px;
+}
+
+.big{font-size:22px;font-weight:bold}
+
+button{
+ background:linear-gradient(135deg,#8b5cf6,#5b21b6);
+ border:none;
+ color:white;
+ padding:10px;
+ border-radius:10px;
+ width:100%;
+ margin-top:6px;
+}
+
+.row{
+ display:flex;
+ justify-content:space-between;
+ margin:6px 0;
+}
+
+/* FAB */
+.fab{
+ position:fixed;
+ bottom:20px;
+ right:20px;
+ width:60px;
+ height:60px;
+ border-radius:50%;
+ background:#8b5cf6;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:28px;
+}
+
+/* MODAL */
+.modal{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,.8);
+ display:none;
+ align-items:center;
+ justify-content:center;
+}
+
+.box{
+ background:#0f1622;
+ padding:16px;
+ border-radius:16px;
+ width:90%;
+}
+
+input,select{
+ width:100%;
+ margin:6px 0;
+ padding:10px;
+ border-radius:10px;
+ border:none;
+ background:#1a2230;
+ color:white;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="back" onclick="goBack()">←</div>
-  <h3 id="month"></h3>
-</header>
+<h3 id="month"></h3>
+
+<div class="grid">
 
 <div class="card">
-  <div>Disponible</div>
-  <div class="big" id="saldo"></div>
-  <button onclick="openModal('income')">+ Ingreso</button>
+<div>Disponible</div>
+<div class="big" id="saldo"></div>
 </div>
 
 <div class="card">
-  <div>A pagar</div>
-  <div class="big" id="pagar"></div>
-  <button onclick="openDetail()">Ver detalle</button>
+<div>A pagar</div>
+<div class="big" id="pagar"></div>
 </div>
 
 <div class="card">
-  <div class="section-head" onclick="toggle('cardSec', this)">
-    <div>Tarjeta</div><div class="chev">›</div>
-  </div>
-  <div id="cardSec"></div>
-  <button onclick="configCard()">Configurar</button>
+<div>Tarjeta</div>
+<div id="cardInfo"></div>
 </div>
 
 <div class="card">
-  <div class="section-head" onclick="toggle('savingSec', this)">
-    <div>Ahorro</div><div class="chev">›</div>
-  </div>
-  <div id="savingSec"></div>
-  <button onclick="addSaving()">Guardar</button>
-  <button onclick="withdrawSaving()">Retirar</button>
+<div>Ahorro</div>
+<div id="saving"></div>
+</div>
+
 </div>
 
 <div class="card">
-  <div class="section-head" onclick="toggle('movesSec', this)">
-    <div>Movimientos</div><div class="chev">›</div>
-  </div>
-  <div id="movesSec"></div>
+<div>Movimientos</div>
+<div id="moves"></div>
 </div>
 
-<button onclick="openModal('expense')">+ Gasto</button>
+<div class="fab" onclick="openModal()">+</div>
 
-<!-- MODAL -->
 <div class="modal" id="modal">
-  <div class="backdrop" onclick="closeModal()"></div>
-  <div class="sheet">
-    <div class="close" onclick="closeModal()">✕</div>
-    <div id="modalBody"></div>
-  </div>
-</div>
+<div class="box">
+<h3>Movimiento</h3>
 
-<!-- DETALLE -->
-<div class="modal" id="detailModal">
-  <div class="backdrop" onclick="closeDetail()"></div>
-  <div class="sheet">
-    <div class="close" onclick="closeDetail()">✕</div>
-    <h3>Detalle mes</h3>
-    <div id="detail"></div>
-  </div>
+<select id="type">
+<option value="income">Ingreso</option>
+<option value="expense">Gasto</option>
+</select>
+
+<input id="concept" placeholder="Concepto">
+<input id="amount" type="number" placeholder="Importe">
+
+<select id="method">
+<option value="cash">Efectivo</option>
+<option value="card">Tarjeta</option>
+</select>
+
+<button onclick="save()">Guardar</button>
+</div>
 </div>
 
 <script>
+
 let state={
  saldo:0,
  moves:[],
  savings:[],
- cards:[{name:"BBVA",limit:30000,openDebt:0,cutDebt:0}],
- history:[]
-};
+ card:{limit:30000,openDebt:0,cutDebt:0},
 
-let viewStack=[];
+ // NUEVO
+ salary:{
+  amount:10000,
+  days:[15,30],
+  lastApplied:[]
+ }
+};
 
 function money(n){
  return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})
 }
 
-function setMonth(){
- document.getElementById("month").innerText=
- new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
+/* INGRESO QUINCENAL */
+function processSalary(){
+
+ let today=new Date();
+ let day=today.getDate();
+
+ state.salary.days.forEach(d=>{
+
+  let key=today.getFullYear()+"-"+today.getMonth()+"-"+d;
+
+  if(day===d && !state.salary.lastApplied.includes(key)){
+
+    state.saldo+=state.salary.amount;
+
+    state.moves.unshift({
+      concept:"Sueldo",
+      amount:state.salary.amount
+    });
+
+    state.salary.lastApplied.push(key);
+  }
+
+ });
+
 }
 
-function goBack(){
- if(viewStack.length){
-   closeModal();
- }
-}
+/* MODAL */
+function openModal(){modal.style.display="flex"}
+function save(){
 
-function openModal(type){
- viewStack.push(type);
-
- let html="";
+ let type=document.getElementById("type").value;
+ let concept=document.getElementById("concept").value;
+ let amount=Number(document.getElementById("amount").value);
+ let method=document.getElementById("method").value;
 
  if(type==="income"){
- html=`
- <h3>Ingreso</h3>
- <select id="cat">
- <option>Bono</option><option>Ventas/Comisiones</option>
- <option>Impuestos</option><option>PTU</option>
- <option>Reembolso</option><option>Otro</option>
- </select>
- <input id="concept" placeholder="Concepto">
- <input id="amount" type="number" placeholder="Importe">
- <button onclick="saveIncome(this)">Guardar</button>
- `;
+  state.saldo+=amount;
  }
 
  if(type==="expense"){
- html=`
- <h3>Gasto</h3>
- <select id="cat">
- <option>Supermercado</option><option>Transporte</option>
- <option>Restaurante</option><option>Ropa</option>
- <option>Otro</option>
- </select>
- <input id="concept" placeholder="Concepto">
- <input id="amount" type="number" placeholder="Importe">
- <select id="method">
- <option value="cash">Efectivo</option>
- <option value="card">Tarjeta</option>
- </select>
- <button onclick="saveExpense(this)">Guardar</button>
- `;
+  if(method==="cash") state.saldo-=amount;
+  else state.card.openDebt+=amount;
  }
 
- modalBody.innerHTML=html;
- modal.style.display="flex";
-}
-
-function closeModal(){
+ state.moves.unshift({concept,amount});
  modal.style.display="none";
- viewStack.pop();
-}
-
-function saveIncome(btn){
- btn.innerText="Guardando...";
- let concept=concept.value||cat.value;
- let amount=Number(amount.value);
- if(!amount)return;
-
- state.saldo+=amount;
- state.moves.unshift({id:Date.now(),concept,amount});
 
  render();
- closeModal();
 }
 
-function saveExpense(btn){
- btn.innerText="Guardando...";
- let concept=concept.value||cat.value;
- let amount=Number(amount.value);
- let method=document.getElementById("method").value;
-
- if(method==="cash") state.saldo-=amount;
- else state.cards[0].openDebt+=amount;
-
- state.moves.unshift({id:Date.now(),concept,amount});
-
- render();
- closeModal();
-}
-
-function configCard(){
- let name=prompt("Nombre tarjeta");
- let limit=Number(prompt("Línea crédito"));
- state.cards[0]={name,limit,openDebt:0,cutDebt:0};
- render();
-}
-
-function addSaving(){
- let a=Number(prompt("Cantidad"));
- state.saldo-=a;
- state.savings.push({amount:a});
- render();
-}
-
-function withdrawSaving(){
- let a=Number(prompt("Cantidad"));
- state.saldo+=a;
- state.savings.push({amount:-a});
- render();
-}
-
-function toggle(id, el){
- let e=document.getElementById(id);
- let chev=el.querySelector(".chev");
- if(e.style.display==="none"){e.style.display="block";chev.classList.add("open")}
- else{e.style.display="none";chev.classList.remove("open")}
-}
-
-function openDetail(){
- let c=state.cards[0];
- detail.innerHTML=`<div class="row"><div>Tarjeta</div><div>${money(c.cutDebt)}</div></div>`;
- detailModal.style.display="flex";
-}
-
-function closeDetail(){detailModal.style.display="none"}
-
+/* RENDER */
 function render(){
 
- setMonth();
-
- let c=state.cards[0];
- let used=c.openDebt+c.cutDebt;
- let avail=c.limit-used;
+ processSalary();
 
  saldo.innerText=money(state.saldo);
- pagar.innerText=money(c.cutDebt);
+ pagar.innerText=money(state.card.cutDebt);
 
- cardSec.innerHTML=`
+ let used=state.card.openDebt+state.card.cutDebt;
+ let avail=state.card.limit-used;
+
+ cardInfo.innerHTML=`
  <div class="row"><div>Usado</div><div>${money(used)}</div></div>
  <div class="row"><div>Disponible</div><div>${money(avail)}</div></div>
  `;
 
- savingSec.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
+ saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
 
- movesSec.innerHTML=state.moves.map(m=>`
- <div class="edit">
- <div class="row"><div>${m.concept}</div><div>${money(m.amount)}</div></div>
- <button onclick="edit(${m.id})">Editar</button>
- </div>
- `).join("");
-}
+ moves.innerHTML=state.moves.map(m=>`
+ <div class="row">
+ <div>${m.concept}</div>
+ <div>${money(m.amount)}</div>
+ </div>`).join("");
 
-function edit(id){
- let m=state.moves.find(x=>x.id===id);
- let n=Number(prompt("Nuevo importe",m.amount));
- if(!isNaN(n)){
-   state.saldo+=m.amount;
-   state.saldo-=n;
-   m.amount=n;
- }
- render();
+ month.innerText=new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
 }
 
 render();
+
 </script>
 
 </body>
