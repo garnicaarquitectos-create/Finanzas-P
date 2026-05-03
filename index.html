@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Finanzas v1.9</title>
+<title>Finanzas v1.10</title>
 
 <style>
 :root{
@@ -27,7 +27,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,B
 
 .modal{position:fixed;bottom:0;left:0;right:0;background:#0f172a;padding:20px;display:none;border-top-left-radius:20px;border-top-right-radius:20px}
 input,select{width:100%;margin:6px 0;padding:10px;border-radius:10px;border:none;background:#1f2937;color:white}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;background:var(--accent);color:white}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9,#4c1d95);color:white}
 .small{font-size:12px;color:var(--muted)}
 .banner{background:#1f2937;border-radius:12px;padding:10px;margin:10px 16px}
 </style>
@@ -114,14 +114,32 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <!-- GASTO -->
 <div class="modal" id="expenseModal">
   <h3>Gasto</h3>
+
+  <select id="expCategory" onchange="applyCategory()">
+    <option>Uber/Transporte</option>
+    <option>Restaurante</option>
+    <option>Súper</option>
+    <option>Vacaciones</option>
+    <option>Farmacia</option>
+    <option>Emergencia</option>
+    <option>Ropa</option>
+    <option>Deporte/Gym</option>
+    <option>Préstamo</option>
+    <option>Tarjeta de Crédito</option>
+    <option>Ocio</option>
+    <option value="otro">Otro</option>
+  </select>
+
   <input id="expConcept" placeholder="Concepto">
   <input id="expAmount" type="number" placeholder="Importe">
+
   <select id="method">
     <option>Efectivo</option>
     <option>Débito</option>
     <option>Tarjeta de crédito</option>
     <option>Otro</option>
   </select>
+
   <button onclick="saveExpense()">Guardar</button>
 </div>
 
@@ -143,7 +161,7 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 </div>
 
 <script>
-const KEY="finanzas_v19";
+const KEY="finanzas_v110";
 let state={
   saldo:0,
   moves:[],
@@ -173,6 +191,7 @@ function processCut(){
   let d=new Date();
   let key=d.getFullYear()+"-"+d.getMonth();
   if(state.card.lastCut===key) return;
+  // corte mensual: mueve open -> cut
   state.card.cutDebt+=state.card.openDebt;
   state.card.openDebt=0;
   state.card.lastCut=key;
@@ -203,6 +222,7 @@ function saveMain(){
   let amount=Number(mainAmount.value||0); if(!amount) return;
   state.saldo+=amount;
   state.moves.unshift({id:Date.now(),type:"main",concept:"Ingreso Principal",amount});
+  // limpia un pendiente (el del día)
   state.salary.pending.pop();
   closeAll(); saveLS(); render();
 }
@@ -215,13 +235,38 @@ function saveExtra(){
   closeAll(); saveLS(); render();
 }
 
+function applyCategory(){
+  const cat = document.getElementById("expCategory").value;
+  const input = document.getElementById("expConcept");
+  if(cat==="otro"){ input.value=""; input.focus(); }
+  else input.value = cat;
+}
+
 function saveExpense(){
   let concept=expConcept.value||"Gasto";
   let amount=Number(expAmount.value||0); if(!amount) return;
-  let m=method.value;
-  if(m==="Tarjeta de crédito"){ state.card.openDebt+=amount; }
-  else{ state.saldo-=amount; }
-  state.moves.unshift({id:Date.now(),type:"expense",concept,amount,method:m});
+  let mth=method.value;
+
+  // --- FLUJO CLAVE ---
+  if(mth==="Tarjeta de crédito"){
+    // compra con TC: NO toca disponible
+    state.card.openDebt+=amount;
+  } else {
+    // salida real de dinero
+    state.saldo-=amount;
+
+    // si es pago de tarjeta (categoría Tarjeta de Crédito)
+    if(concept==="Tarjeta de Crédito"){
+      let pay = Math.min(state.card.cutDebt, amount);
+      state.card.cutDebt -= pay;
+      let restante = amount - pay;
+      if(restante>0){
+        state.card.openDebt -= Math.min(state.card.openDebt, restante);
+      }
+    }
+  }
+
+  state.moves.unshift({id:Date.now(),type:"expense",concept,amount,method:mth});
   closeAll(); saveLS(); render();
 }
 
@@ -231,12 +276,15 @@ function saveMSI(){
   let months=Number(msiMonths.value||0);
   if(!total||!months) return;
 
+  // reserva línea total
   state.card.openDebt+=total;
+
   state.msi.push({
     concept,total,months,
     monthly:total/months,
     remaining:months,last:null
   });
+
   state.moves.unshift({id:Date.now(),type:"msi",concept,amount:total});
   closeAll(); saveLS(); render();
 }
@@ -253,26 +301,70 @@ function edit(id){
   let m=state.moves.find(x=>x.id===id); if(!m) return;
   let n=Number(prompt("Nuevo importe",m.amount));
   if(isNaN(n)) return;
-  // revert
-  if(m.type==="expense" && m.method!=="Tarjeta de crédito"){ state.saldo+=m.amount; }
-  if(m.type==="expense" && m.method==="Tarjeta de crédito"){ state.card.openDebt-=m.amount; }
-  if(m.type==="main"||m.type==="extra"){ state.saldo-=m.amount; }
 
-  // apply
+  // --- revertir impacto ---
+  if(m.type==="expense"){
+    if(m.method==="Tarjeta de crédito"){
+      state.card.openDebt -= m.amount;
+    } else {
+      state.saldo += m.amount;
+      if(m.concept==="Tarjeta de Crédito"){
+        // deshacer pago de TC
+        // devolvemos primero a cut y luego a open
+        let addCut = Math.min(n, m.amount); // aproximación simple
+        state.card.cutDebt += addCut;
+      }
+    }
+  }
+  if(m.type==="main"||m.type==="extra"){
+    state.saldo -= m.amount;
+  }
+
+  // --- aplicar nuevo ---
   m.amount=n;
-  if(m.type==="expense" && m.method!=="Tarjeta de crédito"){ state.saldo-=n; }
-  if(m.type==="expense" && m.method==="Tarjeta de crédito"){ state.card.openDebt+=n; }
-  if(m.type==="main"||m.type==="extra"){ state.saldo+=n; }
+
+  if(m.type==="expense"){
+    if(m.method==="Tarjeta de crédito"){
+      state.card.openDebt += n;
+    } else {
+      state.saldo -= n;
+      if(m.concept==="Tarjeta de Crédito"){
+        let pay = Math.min(state.card.cutDebt, n);
+        state.card.cutDebt -= pay;
+        let restante = n - pay;
+        if(restante>0){
+          state.card.openDebt -= Math.min(state.card.openDebt, restante);
+        }
+      }
+    }
+  }
+  if(m.type==="main"||m.type==="extra"){
+    state.saldo += n;
+  }
 
   saveLS(); render();
 }
 
 function del(id){
   let m=state.moves.find(x=>x.id===id); if(!m) return;
-  // revert
-  if(m.type==="expense" && m.method!=="Tarjeta de crédito"){ state.saldo+=m.amount; }
-  if(m.type==="expense" && m.method==="Tarjeta de crédito"){ state.card.openDebt-=m.amount; }
-  if(m.type==="main"||m.type==="extra"){ state.saldo-=m.amount; }
+
+  // revertir
+  if(m.type==="expense"){
+    if(m.method==="Tarjeta de crédito"){
+      state.card.openDebt -= m.amount;
+    } else {
+      state.saldo += m.amount;
+      if(m.concept==="Tarjeta de Crédito"){
+        // deshacer pago de TC
+        let addCut = Math.min(state.card.cutDebt, m.amount);
+        state.card.cutDebt += addCut;
+      }
+    }
+  }
+  if(m.type==="main"||m.type==="extra"){
+    state.saldo -= m.amount;
+  }
+
   state.moves=state.moves.filter(x=>x.id!==id);
   saveLS(); render();
 }
@@ -289,7 +381,7 @@ function render(){
   let used=state.card.openDebt+state.card.cutDebt;
   let avail=state.card.limit-used;
   cardAvail.innerText=money(avail);
-  cardInfo.innerText=`Usado ${money(used)} | Corte ${money(state.card.cutDebt)}`;
+  cardInfo.innerText=`Por pagar: ${money(state.card.cutDebt)} | Gastando: ${money(state.card.openDebt)}`;
 
   // ahorro
   saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
