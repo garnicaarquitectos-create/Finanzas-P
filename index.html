@@ -3,277 +3,334 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Finanzas</title>
+<title>Finanzas v1.9</title>
 
 <style>
 :root{
- --bg:#070b10;
- --card:#111827;
- --accent:#8b5cf6;
- --text:#fff;
- --muted:#9ca3af;
+ --bg:#070b10; --card:#111827; --accent:#8b5cf6; --text:#fff; --muted:#9ca3af;
 }
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+.header{padding:20px}
+.saldo{font-size:32px;font-weight:700}
+.sub{color:var(--muted)}
 
-body{
- margin:0;
- background:var(--bg);
- color:var(--text);
- font-family:-apple-system,sans-serif;
-}
+.actions{display:flex;gap:10px;padding:0 16px}
+.action{flex:1;background:var(--card);padding:12px;border-radius:12px;text-align:center}
 
-.header{
- padding:20px;
-}
+.section{padding:16px}
+.card{background:var(--card);border-radius:14px;padding:12px;margin-top:10px}
+.row{display:flex;justify-content:space-between;margin:6px 0;align-items:center}
+.mov{display:flex;justify-content:space-between;margin:10px 0;align-items:center}
+.icons span{margin-left:10px;cursor:pointer}
 
-.saldo{
- font-size:32px;
- font-weight:700;
-}
+.fab{position:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px}
 
-.grid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:12px;
- padding:0 16px;
-}
-
-.card{
- background:var(--card);
- border-radius:16px;
- padding:14px;
-}
-
-.value{
- font-size:18px;
- margin-top:4px;
-}
-
-.section{
- padding:16px;
-}
-
-.mov{
- display:flex;
- justify-content:space-between;
- margin:8px 0;
-}
-
-.fab{
- position:fixed;
- bottom:20px;
- left:50%;
- transform:translateX(-50%);
- width:65px;
- height:65px;
- border-radius:50%;
- background:var(--accent);
- display:flex;
- align-items:center;
- justify-content:center;
- font-size:28px;
-}
-
-.modal{
- position:fixed;
- bottom:0;
- left:0;
- right:0;
- background:#0f172a;
- border-top-left-radius:20px;
- border-top-right-radius:20px;
- padding:20px;
- display:none;
-}
-
-input,select{
- width:100%;
- margin:6px 0;
- padding:10px;
- border-radius:10px;
- border:none;
- background:#1f2937;
- color:white;
-}
-
-button{
- width:100%;
- padding:12px;
- border:none;
- border-radius:10px;
- background:var(--accent);
- color:white;
- margin-top:10px;
-}
+.modal{position:fixed;bottom:0;left:0;right:0;background:#0f172a;padding:20px;display:none;border-top-left-radius:20px;border-top-right-radius:20px}
+input,select{width:100%;margin:6px 0;padding:10px;border-radius:10px;border:none;background:#1f2937;color:white}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;background:var(--accent);color:white}
+.small{font-size:12px;color:var(--muted)}
+.banner{background:#1f2937;border-radius:12px;padding:10px;margin:10px 16px}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<div>Disponible</div>
-<div class="saldo" id="saldo"></div>
+  <div class="sub">Disponible</div>
+  <div class="saldo" id="saldo"></div>
 </div>
 
-<div class="grid">
-
-<div class="card">
-<div>A pagar</div>
-<div class="value" id="pagar"></div>
+<div class="actions">
+  <div class="action" onclick="openIncomeMenu()">Ingresos</div>
+  <div class="action" onclick="openExpense()">Gasto</div>
 </div>
 
-<div class="card">
-<div>Tarjeta</div>
-<div class="value" id="card"></div>
-</div>
-
-<div class="card">
-<div>Ahorro</div>
-<div class="value" id="saving"></div>
-</div>
-
-<div class="card">
-<div>Mes</div>
-<div class="value" id="month"></div>
-</div>
-
-</div>
+<div id="salaryPending" class="banner" style="display:none"></div>
 
 <div class="section">
-<div id="salaryPending"></div>
 
-<div>Movimientos</div>
-<div id="moves"></div>
+  <div class="card">
+    <div class="row"><div>A pagar</div><div id="pagar"></div></div>
+    <div id="payDetail" class="small"></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Tarjeta</div><div id="cardAvail"></div></div>
+    <div class="small" id="cardInfo"></div>
+    <button onclick="configCard()">Configurar</button>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Ahorro</div><div id="saving"></div></div>
+    <button onclick="addSaving()">Guardar</button>
+    <button onclick="withdrawSaving()">Retirar</button>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Gastos fijos</div></div>
+    <div id="fixedList"></div>
+    <button onclick="openFixed()">+ Agregar fijo</button>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Movimientos</div></div>
+    <div id="moves"></div>
+  </div>
+
 </div>
 
-<div class="fab" onclick="openModal()">+</div>
+<div class="fab" onclick="openExpense()">+</div>
 
-<div class="modal" id="modal">
+<!-- MENÚ INGRESOS -->
+<div class="modal" id="incomeMenu">
+  <h3>Ingresos</h3>
+  <button onclick="openMainIncome()">Ingreso Principal</button>
+  <button onclick="openExtraIncome()">Ingreso adicional</button>
+</div>
 
-<select id="type">
-<option value="main">Ingreso Principal</option>
-<option value="extra">Ingreso adicional</option>
-<option value="expense">Gasto</option>
-</select>
+<!-- INGRESO PRINCIPAL -->
+<div class="modal" id="mainIncome">
+  <h3>Ingreso Principal</h3>
+  <input id="mainAmount" type="number" placeholder="Importe">
+  <button onclick="saveMain()">Guardar</button>
+</div>
 
-<input id="concept" placeholder="Concepto">
-<input id="amount" type="number" placeholder="Importe">
+<!-- INGRESO EXTRA -->
+<div class="modal" id="extraIncome">
+  <h3>Ingreso adicional</h3>
+  <select id="extraCat">
+    <option>Bono</option>
+    <option>Ventas/Comisiones</option>
+    <option>Impuestos</option>
+    <option>PTU</option>
+    <option>Reembolso</option>
+    <option>Otro</option>
+  </select>
+  <input id="extraConcept" placeholder="Concepto">
+  <input id="extraAmount" type="number" placeholder="Importe">
+  <button onclick="saveExtra()">Guardar</button>
+</div>
 
-<select id="method">
-<option>Efectivo</option>
-<option>Débito</option>
-<option>Tarjeta de crédito</option>
-<option>Otro</option>
-</select>
+<!-- GASTO -->
+<div class="modal" id="expenseModal">
+  <h3>Gasto</h3>
+  <input id="expConcept" placeholder="Concepto">
+  <input id="expAmount" type="number" placeholder="Importe">
+  <select id="method">
+    <option>Efectivo</option>
+    <option>Débito</option>
+    <option>Tarjeta de crédito</option>
+    <option>Otro</option>
+  </select>
+  <button onclick="saveExpense()">Guardar</button>
+</div>
 
-<button onclick="save()">Guardar</button>
+<!-- MSI -->
+<div class="modal" id="msiModal">
+  <h3>Compra a meses</h3>
+  <input id="msiConcept" placeholder="Concepto">
+  <input id="msiAmount" type="number" placeholder="Importe total">
+  <input id="msiMonths" type="number" placeholder="Meses">
+  <button onclick="saveMSI()">Guardar</button>
+</div>
 
+<!-- FIJO -->
+<div class="modal" id="fixedModal">
+  <h3>Gasto fijo</h3>
+  <input id="fixName" placeholder="Nombre">
+  <input id="fixAmount" type="number" placeholder="Monto">
+  <button onclick="saveFixed()">Guardar</button>
 </div>
 
 <script>
-
+const KEY="finanzas_v19";
 let state={
- saldo:0,
- moves:[],
- savings:[],
- card:{limit:30000,openDebt:0,cutDebt:0},
-
- salary:{
-  days:[15,30],
-  pending:[]
- }
+  saldo:0,
+  moves:[],
+  savings:[],
+  card:{limit:30000,openDebt:0,cutDebt:0,lastCut:null},
+  msi:[],
+  fixed:[],
+  salary:{days:[15,30],pending:[]}
 };
 
-function money(n){
- return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})
-}
+function saveLS(){localStorage.setItem(KEY,JSON.stringify(state))}
+function load(){let r=localStorage.getItem(KEY); if(r) state=JSON.parse(r)}
 
-/* SUELDO PENDIENTE */
+function money(n){return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})}
+
+/* ======= SUELDO PENDIENTE ======= */
 function processSalary(){
-
- let d=new Date();
- let today=d.getDate();
- let key=d.getFullYear()+"-"+d.getMonth()+"-"+today;
-
- if(state.salary.days.includes(today)){
-
-  if(!state.salary.pending.includes(key)){
+  let d=new Date(), day=d.getDate();
+  let key=d.getFullYear()+"-"+d.getMonth()+"-"+day;
+  if(state.salary.days.includes(day) && !state.salary.pending.includes(key)){
     state.salary.pending.push(key);
   }
-
- }
-
 }
 
-/* MODAL */
-function openModal(){modal.style.display="block"}
+/* ======= CORTE TARJETA ======= */
+function processCut(){
+  let d=new Date();
+  let key=d.getFullYear()+"-"+d.getMonth();
+  if(state.card.lastCut===key) return;
+  state.card.cutDebt+=state.card.openDebt;
+  state.card.openDebt=0;
+  state.card.lastCut=key;
+}
 
-function save(){
+/* ======= MSI MENSUAL ======= */
+function applyMSI(){
+  let mk=new Date().getMonth();
+  state.msi.forEach(m=>{
+    if(m.remaining>0 && m.last!==mk){
+      state.card.cutDebt+=m.monthly;
+      m.remaining--;
+      m.last=mk;
+    }
+  });
+}
 
- let type=typeSelect.value;
- let amount=Number(amountInput.value);
- let concept=conceptInput.value;
+/* ======= MODALES ======= */
+function closeAll(){document.querySelectorAll(".modal").forEach(m=>m.style.display="none")}
+function openIncomeMenu(){closeAll();incomeMenu.style.display="block"}
+function openMainIncome(){closeAll();mainIncome.style.display="block"}
+function openExtraIncome(){closeAll();extraIncome.style.display="block"}
+function openExpense(){closeAll();expenseModal.style.display="block"}
+function openFixed(){closeAll();fixedModal.style.display="block"}
 
- if(type==="main"){
+/* ======= GUARDAR ======= */
+function saveMain(){
+  let amount=Number(mainAmount.value||0); if(!amount) return;
   state.saldo+=amount;
-  state.moves.unshift({concept:"Ingreso Principal",amount});
-
-  // eliminar pendiente
+  state.moves.unshift({id:Date.now(),type:"main",concept:"Ingreso Principal",amount});
   state.salary.pending.pop();
- }
+  closeAll(); saveLS(); render();
+}
 
- if(type==="extra"){
+function saveExtra(){
+  let concept=extraConcept.value||extraCat.value;
+  let amount=Number(extraAmount.value||0); if(!amount) return;
   state.saldo+=amount;
-  state.moves.unshift({concept,amount});
- }
-
- if(type==="expense"){
-  if(methodSelect.value==="Tarjeta de crédito"){
-    state.card.openDebt+=amount;
-  }else{
-    state.saldo-=amount;
-  }
-  state.moves.unshift({concept,amount});
- }
-
- modal.style.display="none";
- render();
+  state.moves.unshift({id:Date.now(),type:"extra",concept,amount});
+  closeAll(); saveLS(); render();
 }
 
-/* RENDER */
+function saveExpense(){
+  let concept=expConcept.value||"Gasto";
+  let amount=Number(expAmount.value||0); if(!amount) return;
+  let m=method.value;
+  if(m==="Tarjeta de crédito"){ state.card.openDebt+=amount; }
+  else{ state.saldo-=amount; }
+  state.moves.unshift({id:Date.now(),type:"expense",concept,amount,method:m});
+  closeAll(); saveLS(); render();
+}
+
+function saveMSI(){
+  let concept=msiConcept.value||"MSI";
+  let total=Number(msiAmount.value||0);
+  let months=Number(msiMonths.value||0);
+  if(!total||!months) return;
+
+  state.card.openDebt+=total;
+  state.msi.push({
+    concept,total,months,
+    monthly:total/months,
+    remaining:months,last:null
+  });
+  state.moves.unshift({id:Date.now(),type:"msi",concept,amount:total});
+  closeAll(); saveLS(); render();
+}
+
+function saveFixed(){
+  let name=fixName.value; let amount=Number(fixAmount.value||0);
+  if(!name||!amount) return;
+  state.fixed.push({id:Date.now(),name,amount,status:"pending"});
+  closeAll(); saveLS(); render();
+}
+
+/* ======= EDIT / DELETE ======= */
+function edit(id){
+  let m=state.moves.find(x=>x.id===id); if(!m) return;
+  let n=Number(prompt("Nuevo importe",m.amount));
+  if(isNaN(n)) return;
+  // revert
+  if(m.type==="expense" && m.method!=="Tarjeta de crédito"){ state.saldo+=m.amount; }
+  if(m.type==="expense" && m.method==="Tarjeta de crédito"){ state.card.openDebt-=m.amount; }
+  if(m.type==="main"||m.type==="extra"){ state.saldo-=m.amount; }
+
+  // apply
+  m.amount=n;
+  if(m.type==="expense" && m.method!=="Tarjeta de crédito"){ state.saldo-=n; }
+  if(m.type==="expense" && m.method==="Tarjeta de crédito"){ state.card.openDebt+=n; }
+  if(m.type==="main"||m.type==="extra"){ state.saldo+=n; }
+
+  saveLS(); render();
+}
+
+function del(id){
+  let m=state.moves.find(x=>x.id===id); if(!m) return;
+  // revert
+  if(m.type==="expense" && m.method!=="Tarjeta de crédito"){ state.saldo+=m.amount; }
+  if(m.type==="expense" && m.method==="Tarjeta de crédito"){ state.card.openDebt-=m.amount; }
+  if(m.type==="main"||m.type==="extra"){ state.saldo-=m.amount; }
+  state.moves=state.moves.filter(x=>x.id!==id);
+  saveLS(); render();
+}
+
+/* ======= RENDER ======= */
 function render(){
+  processSalary();
+  processCut();
+  applyMSI();
 
- processSalary();
+  saldo.innerText=money(state.saldo);
 
- let used=state.card.openDebt+state.card.cutDebt;
- let avail=state.card.limit-used;
+  // tarjeta
+  let used=state.card.openDebt+state.card.cutDebt;
+  let avail=state.card.limit-used;
+  cardAvail.innerText=money(avail);
+  cardInfo.innerText=`Usado ${money(used)} | Corte ${money(state.card.cutDebt)}`;
 
- saldo.innerText=money(state.saldo);
- pagar.innerText=money(state.card.cutDebt);
- card.innerText=money(avail);
- saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
+  // ahorro
+  saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
 
- month.innerText=new Date().toLocaleDateString("es-MX",{month:"short"});
+  // pagar
+  let fixed=state.fixed.filter(f=>f.status==="pending").reduce((t,f)=>t+f.amount,0);
+  pagar.innerText=money(state.card.cutDebt+fixed);
 
- salaryPending.innerHTML=state.salary.pending.length ?
- "💰 Ingreso Principal pendiente" : "";
+  // detalle
+  payDetail.innerHTML=`
+    Tarjeta: ${money(state.card.cutDebt)}<br>
+    Fijos: ${money(fixed)}
+  `;
 
- moves.innerHTML=state.moves.map(m=>`
- <div class="mov">
- <div>${m.concept}</div>
- <div>${money(m.amount)}</div>
- </div>`).join("");
+  // sueldo pendiente
+  salaryPending.style.display=state.salary.pending.length?"block":"none";
+  salaryPending.innerText="💰 Ingreso Principal pendiente";
 
+  // fijos
+  fixedList.innerHTML=state.fixed.map(f=>`
+    <div class="row">
+      <div>${f.name}</div>
+      <div>${money(f.amount)}</div>
+    </div>
+  `).join("");
+
+  // movimientos
+  moves.innerHTML=state.moves.map(m=>`
+    <div class="mov">
+      <div>${m.concept}</div>
+      <div>${money(m.amount)}</div>
+      <div class="icons">
+        <span onclick="edit(${m.id})">✏️</span>
+        <span onclick="del(${m.id})">🗑</span>
+      </div>
+    </div>
+  `).join("");
 }
 
-/* INIT */
-const typeSelect=document.getElementById("type");
-const amountInput=document.getElementById("amount");
-const conceptInput=document.getElementById("concept");
-const methodSelect=document.getElementById("method");
-
+load();
 render();
-
 </script>
-
 </body>
 </html>
