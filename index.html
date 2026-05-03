@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Finanzas v1 estable</title>
+<title>Finanzas v1.2</title>
 <style>
 body{background:#070b10;color:#fff;font-family:sans-serif;max-width:430px;margin:auto;padding:16px}
 .card{background:#121922;border-radius:16px;padding:12px;margin-bottom:10px}
 .big{font-size:28px;font-weight:bold}
 button{background:#8b5cf6;color:#fff;border:none;padding:8px;border-radius:8px;margin-top:6px}
 .row{display:flex;justify-content:space-between;margin:4px 0}
-.modal{position:fixed;bottom:0;left:0;right:0;background:#0b1119;padding:12px;display:none;border-top-left-radius:16px;border-top-right-radius:16px}
 input,select{width:100%;margin:4px 0;padding:8px;border-radius:8px;border:none;background:#0f1622;color:#fff}
-small{color:#8d99aa}
+.modal{position:fixed;bottom:0;left:0;right:0;background:#0b1119;padding:12px;display:none}
 </style>
 </head>
 
@@ -21,465 +20,226 @@ small{color:#8d99aa}
 <h3 id="month"></h3>
 
 <div class="card">
-  <div>Disponible</div>
-  <div class="big" id="saldo"></div>
+<div>Disponible</div>
+<div class="big" id="saldo"></div>
+<button onclick="openModal('income')">+ Ingreso</button>
 </div>
 
 <div class="card">
-  <div>A pagar (mes actual)</div>
-  <div class="big" id="pagar"></div>
-  <button onclick="openDetail()">Ver detalle</button>
+<div>A pagar</div>
+<div class="big" id="pagar"></div>
+<button onclick="openDetail()">Ver detalle</button>
 </div>
 
 <div class="card">
-  <div>Tarjeta</div>
-  <div id="cardInfo"></div>
+<div>Tarjeta</div>
+<div id="cardInfo"></div>
+<button onclick="configCard()">Configurar</button>
 </div>
 
 <div class="card">
-  <div>Ahorro</div>
-  <div id="saving"></div>
-  <button onclick="addSaving()">Guardar</button>
-  <button onclick="withdrawSaving()">Retirar</button>
+<div>Ahorro</div>
+<div id="saving"></div>
+<button onclick="addSaving()">Guardar</button>
+<button onclick="withdrawSaving()">Retirar</button>
 </div>
 
 <div class="card">
-  <div>Movimientos</div>
-  <div id="moves"></div>
+<div>Movimientos</div>
+<div id="moves"></div>
 </div>
 
-<button onclick="openModal()">+ Nuevo</button>
+<button onclick="openModal('expense')">+ Gasto</button>
 
-<!-- Modal Nuevo -->
-<div class="modal" id="modal">
-  <select id="type" onchange="onTypeChange()">
-    <option value="income">Ingreso</option>
-    <option value="expense">Gasto</option>
-    <option value="cardpay">Pago tarjeta</option>
-    <option value="msi">Compra MSI</option>
-    <option value="fixed">Gasto fijo (plantilla)</option>
-  </select>
+<div class="modal" id="modal"></div>
 
-  <!-- Gasto (variable) -->
-  <div id="expenseFields">
-    <select id="category" onchange="applyCategory()">
-      <option>Uber/Transporte</option>
-      <option>Supermercado</option>
-      <option>Gasolina</option>
-      <option>Farmacia</option>
-      <option>Consultas/Drs</option>
-      <option>Restaurantes</option>
-      <option>Ropa</option>
-      <option>Deporte/Gym</option>
-      <option>Antojos/Café</option>
-      <option>Vacaciones</option>
-      <option value="otro">Otro</option>
-    </select>
-    <input id="concept" placeholder="Concepto">
-    <select id="method">
-      <option value="cash">Débito/Efectivo</option>
-      <option value="card">Tarjeta de crédito</option>
-    </select>
-  </div>
-
-  <!-- MSI -->
-  <div id="msiFields" style="display:none">
-    <input id="msiConcept" placeholder="Concepto (ej. iPhone)">
-    <input id="months" type="number" placeholder="Meses (ej. 6)">
-  </div>
-
-  <!-- Fijo -->
-  <div id="fixedFields" style="display:none">
-    <input id="fixedName" placeholder="Nombre (ej. Renta)">
-    <input id="fixedAmount" type="number" placeholder="Monto">
-    <small>Se generará cada mes como pendiente hasta que lo pagues</small>
-  </div>
-
-  <input id="amount" type="number" placeholder="Importe">
-  <button onclick="saveMove()">Guardar</button>
-</div>
-
-<!-- Detalle A pagar -->
 <div class="modal" id="detailModal">
-  <h3>Detalle mes</h3>
-  <div id="detail"></div>
+<h3>Detalle mes</h3>
+<div id="detail"></div>
 </div>
 
 <script>
-const KEY="finanzas_v1_estable";
 
-/* ================= STATE ================= */
+const KEY="finanzas_v12";
+
 let state={
-  saldo:0,
-  moves:[],
-  savings:[],               // [{name, amount}]
-  cards:[{
-    id:1, name:"BBVA", creditLimit:30000,
-    openDebt:0, cutDebt:0, lastCut:null
-  }],
-  msi:[],                   // planes MSI
-  fixedTemplates:[],        // plantillas
-  fixedMonthly:[],          // pendientes del mes
-  currentMonth:null
+ saldo:0,
+ moves:[],
+ savings:[],
+ cards:[{name:"BBVA",limit:30000,openDebt:0,cutDebt:0,cutDay:25,lastCut:null}],
+ msi:[],
+ fixed:[],
+ currentMonth:null
 };
 
-/* ================ UTILS ================= */
-function saveLS(){localStorage.setItem(KEY,JSON.stringify(state))}
-function load(){const r=localStorage.getItem(KEY); if(r) state=JSON.parse(r)}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function load(){let r=localStorage.getItem(KEY); if(r)state=JSON.parse(r)}
 
-function money(n){
-  return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})
+function money(n){return "$"+Number(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})}
+
+function monthKey(){
+ let d=new Date();
+ return d.getFullYear()+"-"+(d.getMonth()+1);
 }
 
-function monthKey(d=new Date()){
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
-}
+function processMonth(){
+ let mk=monthKey();
+ if(state.currentMonth===mk)return;
+ state.currentMonth=mk;
 
-function usedCredit(c){ return Number(c.openDebt||0)+Number(c.cutDebt||0) }
-function availableCredit(c){ return Number(c.creditLimit||0)-usedCredit(c) }
+ // corte
+ let c=state.cards[0];
+ c.cutDebt+=c.openDebt;
+ c.openDebt=0;
 
-/* ============ CAMBIO DE MES ============== */
-function processNewMonth(){
-  const mk = monthKey();
-  if(state.currentMonth === mk) return;
-
-  state.currentMonth = mk;
-
-  // 1) corte
-  processCut();
-
-  // 2) aplicar MSI del mes (sin duplicar)
-  applyMSIForCurrentMonth();
-
-  // 3) generar gastos fijos del mes (pendientes)
-  (state.fixedTemplates||[]).forEach(t=>{
-    state.fixedMonthly.push({
-      id: Date.now()+Math.random(),
-      name: t.name,
-      amount: Number(t.amount||0),
-      status: "pending",
-      month: mk
-    });
-  });
-
-  saveLS();
-}
-
-/* ================ TARJETA =============== */
-function processCut(){
-  const today=new Date();
-  state.cards.forEach(c=>{
-    const cutDate=new Date(today.getFullYear(),today.getMonth(),25);
-    if(today.getDate()<25) cutDate.setMonth(cutDate.getMonth()-1);
-    const key=cutDate.toISOString().slice(0,7);
-    if(c.lastCut===key) return;
-    c.cutDebt += Number(c.openDebt||0);
-    c.openDebt = 0;
-    c.lastCut = key;
-  });
-}
-
-function applyMSIForCurrentMonth(){
-  const mk = monthKey();
-  (state.msi||[]).forEach(m=>{
-    if(m.remaining<=0) return;
-    if(mk < m.start || mk > m.end) return;
-    if(m.lastAppliedMonth === mk) return;
-
-    const card = state.cards.find(c=>c.id===m.cardId) || state.cards[0];
-    card.cutDebt += Number(m.monthly||0);
-
-    m.remaining -= 1;
-    m.lastAppliedMonth = mk;
-  });
-}
-
-function payCard(amount, cardId){
-  const c = state.cards.find(x=>x.id===cardId) || state.cards[0];
-  let rem = amount;
-
-  let p = Math.min(c.cutDebt, rem);
-  c.cutDebt -= p; rem -= p;
-
-  if(rem>0){
-    p = Math.min(c.openDebt, rem);
-    c.openDebt -= p; rem -= p;
+ // MSI
+ state.msi.forEach(m=>{
+  if(m.remaining>0 && m.last!==mk){
+   c.cutDebt+=m.monthly;
+   m.remaining--;
+   m.last=mk;
   }
+ });
 
-  state.saldo -= amount;
-}
-
-/* ================ AHORRO ================ */
-function totalSaving(){
-  return (state.savings||[]).reduce((t,s)=>t+Number(s.amount||0),0)
-}
-
-function addSaving(){
-  const name = prompt("Nombre de la caja");
-  const amount = Number(prompt("Cantidad"));
-  if(!amount) return;
-
-  state.saldo -= amount;
-
-  const box = state.savings.find(s=>s.name===name);
-  if(box) box.amount += amount;
-  else state.savings.push({name, amount});
-
-  saveLS(); render();
-}
-
-function withdrawSaving(){
-  const name = prompt("¿De cuál caja?");
-  const amount = Number(prompt("Cantidad"));
-  const box = state.savings.find(s=>s.name===name);
-  if(!box || box.amount < amount) return;
-
-  box.amount -= amount;
-  state.saldo += amount;
-
-  saveLS(); render();
-}
-
-/* ================ MOVES (impact) ========= */
-function applyImpact(m){
-  // crea contenedor de impacto
-  m.impact = {saldo:0, cardOpen:0, cardCut:0};
-
-  if(m.type==="income"){
-    state.saldo += m.amount;
-    m.impact.saldo = +m.amount;
-  }
-
-  if(m.type==="expense"){
-    if(m.method==="cash"){
-      state.saldo -= m.amount;
-      m.impact.saldo = -m.amount;
-    } else {
-      const c = state.cards[0];
-      c.openDebt += m.amount;
-      m.impact.cardOpen = +m.amount;
-    }
-  }
-
-  if(m.type==="cardpay"){
-    payCard(m.amount, m.cardId||1);
-    m.impact.saldo = -m.amount;
-    // cardCut/open ya ajustados en payCard
-  }
-}
-
-function revertImpact(m){
-  if(!m.impact) return;
-
-  state.saldo -= Number(m.impact.saldo||0);
-
-  if(m.impact.cardOpen){
-    const c = state.cards[0];
-    c.openDebt -= Number(m.impact.cardOpen);
-  }
-
-  // Para cardCut no guardamos granular aquí (se maneja con payCard en edición)
-}
-
-/* ================ MSI (crear) =========== */
-function createMSI({concept,total,months,start,cardId}){
-  const monthly = total / months;
-
-  const [y,m] = start.split('-').map(Number);
-  const endDate = new Date(y, m-1 + (months-1));
-  const end = `${endDate.getFullYear()}-${String(endDate.getMonth()+1).padStart(2,'0')}`;
-
-  const plan = {
-    id: Date.now(),
-    concept, total, months,
-    monthly, remaining: months,
-    start, end,
-    lastAppliedMonth: null,
-    cardId
-  };
-
-  state.msi.push(plan);
-
-  // reserva línea completa
-  const c = state.cards.find(x=>x.id===cardId) || state.cards[0];
-  c.openDebt += total;
-}
-
-/* ================ GASTO FIJO ============ */
-function addFixedTemplate(name, amount){
-  state.fixedTemplates.push({
-    id: Date.now(),
-    name, amount: Number(amount||0)
-  });
-}
-
-/* ================ UI ==================== */
-function openModal(){
-  document.getElementById("modal").style.display="block";
-  onTypeChange();
-}
-
-function onTypeChange(){
-  const t = document.getElementById("type").value;
-  document.getElementById("expenseFields").style.display = (t==="expense") ? "block":"none";
-  document.getElementById("msiFields").style.display = (t==="msi") ? "block":"none";
-  document.getElementById("fixedFields").style.display = (t==="fixed") ? "block":"none";
-}
-
-function applyCategory(){
-  const cat = document.getElementById("category").value;
-  const input = document.getElementById("concept");
-  if(cat==="otro"){ input.value=""; input.focus(); }
-  else input.value = cat;
-}
-
-function saveMove(){
-  const t = document.getElementById("type").value;
-  const amount = Number(document.getElementById("amount").value);
-  if(!amount && t!=="fixed") return;
-
-  if(t==="income"){
-    const m = {id:Date.now(), type:"income", amount};
-    applyImpact(m);
-    state.moves.unshift(m);
-  }
-
-  if(t==="expense"){
-    const concept = document.getElementById("concept").value || document.getElementById("category").value;
-    const method = document.getElementById("method").value;
-
-    const m = {id:Date.now(), type:"expense", concept, amount, method};
-    applyImpact(m);
-    state.moves.unshift(m);
-  }
-
-  if(t==="cardpay"){
-    const m = {id:Date.now(), type:"cardpay", amount, cardId:1, concept:"Tarjeta de crédito"};
-    applyImpact(m);
-    state.moves.unshift(m);
-  }
-
-  if(t==="msi"){
-    const concept = document.getElementById("msiConcept").value || "MSI";
-    const months = Number(document.getElementById("months").value);
-    const start = monthKey();
-
-    createMSI({concept,total:amount,months,start,cardId:1});
-
-    // registramos movimiento informativo (sin impacto en saldo)
-    state.moves.unshift({id:Date.now(), type:"msi", concept, amount});
-  }
-
-  if(t==="fixed"){
-    const name = document.getElementById("fixedName").value;
-    const amt = Number(document.getElementById("fixedAmount").value);
-    if(!name || !amt) return;
-    addFixedTemplate(name, amt);
-  }
-
-  saveLS(); render();
-}
-
-function editMove(id){
-  const m = state.moves.find(x=>x.id===id);
-  if(!m) return;
-
-  // 1) revertir
-  revertImpact(m);
-
-  // 2) nuevos datos
-  const newAmount = Number(prompt("Nuevo importe", m.amount));
-  const newConcept = prompt("Nuevo concepto", m.concept||"");
-
-  if(!isNaN(newAmount)) m.amount = newAmount;
-  if(newConcept!==null) m.concept = newConcept;
-
-  // 3) reaplicar
-  if(m.type==="expense" || m.type==="income" || m.type==="cardpay"){
-    applyImpact(m);
-  }
-
-  saveLS(); render();
-}
-
-function payFixed(id){
-  const f = state.fixedMonthly.find(x=>x.id===id);
-  if(!f || f.status!=="pending") return;
-
-  // pagar desde disponible
-  state.saldo -= Number(f.amount||0);
-  f.status = "paid";
-
-  // registrar movimiento
-  const m = {id:Date.now(), type:"expense", concept:f.name, amount:f.amount, method:"cash"};
-  applyImpact(m);
-  state.moves.unshift(m);
-
-  saveLS(); render();
-}
-
-function openDetail(){
-  let html="";
-  const c = state.cards[0];
-
-  if(c.cutDebt>0){
-    html += `<div class="row"><div>Tarjeta</div><div>${money(c.cutDebt)}</div></div>`;
-  }
-
-  (state.msi||[]).forEach(m=>{
-    const mk = monthKey();
-    if(m.remaining>=0 && mk>=m.start && mk<=m.end){
-      html += `<div class="row"><div>${m.concept}</div><div>${money(m.monthly)}</div></div>`;
-    }
-  });
-
-  (state.fixedMonthly||[]).filter(f=>f.status==="pending").forEach(f=>{
-    html += `<div class="row"><div>${f.name}</div><div>${money(f.amount)}</div></div>`;
-  });
-
-  document.getElementById("detail").innerHTML = html || "<small>Sin pendientes este mes</small>";
-  document.getElementById("detailModal").style.display="block";
+ save();
 }
 
 function totalPay(){
-  const c = state.cards[0];
-  const fixed = (state.fixedMonthly||[]).filter(f=>f.status==="pending")
-                .reduce((t,f)=>t+Number(f.amount||0),0);
-  return Number(c.cutDebt||0) + fixed;
+ let c=state.cards[0];
+ let fixed=state.fixed.filter(f=>f.status==="pending")
+ .reduce((t,f)=>t+f.amount,0);
+ return c.cutDebt+fixed;
+}
+
+function openModal(type){
+
+ let html="";
+
+ if(type==="income"){
+ html=`
+ <h3>Ingreso</h3>
+ <select id="cat">
+ <option>Bono</option>
+ <option>Ventas/Comisiones</option>
+ <option>Impuestos</option>
+ <option>PTU</option>
+ <option>Reembolso</option>
+ <option value="otro">Otro</option>
+ </select>
+ <input id="concept" placeholder="Concepto">
+ <input id="amount" type="number" placeholder="Importe">
+ <button onclick="saveIncome()">Guardar</button>
+ `;
+ }
+
+ if(type==="expense"){
+ html=`
+ <h3>Gasto</h3>
+ <select id="cat">
+ <option>Supermercado</option>
+ <option>Transporte</option>
+ <option>Restaurante</option>
+ <option>Ropa</option>
+ <option>Otro</option>
+ </select>
+ <input id="concept" placeholder="Concepto">
+ <input id="amount" type="number" placeholder="Importe">
+ <select id="method">
+ <option value="cash">Efectivo</option>
+ <option value="card">Tarjeta</option>
+ </select>
+ <button onclick="saveExpense()">Guardar</button>
+ `;
+ }
+
+ modal.innerHTML=html;
+ modal.style.display="block";
+}
+
+function saveIncome(){
+ let concept=concept.value||cat.value;
+ let amount=Number(amount.value);
+ if(!amount)return;
+ state.saldo+=amount;
+ state.moves.unshift({id:Date.now(),concept,amount,type:"income"});
+ save();render();
+}
+
+function saveExpense(){
+ let concept=concept.value||cat.value;
+ let amount=Number(amount.value);
+ let method=document.getElementById("method").value;
+ if(!amount)return;
+
+ if(method==="cash"){
+  state.saldo-=amount;
+ }else{
+  state.cards[0].openDebt+=amount;
+ }
+
+ state.moves.unshift({id:Date.now(),concept,amount,type:"expense"});
+ save();render();
+}
+
+function configCard(){
+ let name=prompt("Nombre");
+ let limit=Number(prompt("Línea"));
+ let cut=Number(prompt("Día corte"));
+ state.cards[0]={name,limit,openDebt:0,cutDebt:0,cutDay:cut};
+ save();render();
+}
+
+function addSaving(){
+ let a=Number(prompt("Cantidad"));
+ if(!a)return;
+ state.saldo-=a;
+ state.savings.push({amount:a});
+ save();render();
+}
+
+function withdrawSaving(){
+ let a=Number(prompt("Cantidad"));
+ if(!a)return;
+ state.saldo+=a;
+ state.savings.push({amount:-a});
+ save();render();
+}
+
+function openDetail(){
+ let c=state.cards[0];
+ detail.innerHTML=`Tarjeta: ${money(c.cutDebt)}`;
+ detailModal.style.display="block";
 }
 
 function render(){
-  processNewMonth();
 
-  const c = state.cards[0];
-  const used = usedCredit(c);
-  const avail = availableCredit(c);
+ processMonth();
 
-  document.getElementById("month").innerText =
-    new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
+ let c=state.cards[0];
+ let used=c.openDebt+c.cutDebt;
+ let avail=c.limit-used;
 
-  document.getElementById("saldo").innerText = money(state.saldo);
-  document.getElementById("pagar").innerText = money(totalPay());
+ month.innerText=new Date().toLocaleDateString("es-MX",{month:"long",year:"numeric"});
+ saldo.innerText=money(state.saldo);
+ pagar.innerText=money(totalPay());
 
-  document.getElementById("cardInfo").innerHTML = `
-    <div class="row"><div>Usado</div><div>${money(used)} / ${money(c.creditLimit)}</div></div>
-    <div class="row"><div>Disponible</div><div>${money(avail)}</div></div>
-  `;
+ cardInfo.innerHTML=`
+ <div class="row"><div>Usado</div><div>${money(used)}</div></div>
+ <div class="row"><div>Disponible</div><div>${money(avail)}</div></div>
+ `;
 
-  document.getElementById("saving").innerText = money(totalSaving());
+ saving.innerText=money(state.savings.reduce((t,s)=>t+s.amount,0));
 
-  document.getElementById("moves").innerHTML = (state.moves||[]).map(m=>`
-    <div class="row">
-      <div>${m.concept||m.type}</div>
-      <div>${money(m.amount||0)}</div>
-      <button onclick="editMove(${m.id})">Editar</button>
-    </div>
-  `).join("");
+ moves.innerHTML=state.moves.map(m=>`
+ <div class="row">
+ <div>${m.concept}</div>
+ <div>${money(m.amount)}</div>
+ </div>`).join("");
 }
 
-/* INIT */
 load();
 render();
+
 </script>
 </body>
 </html>
